@@ -1,0 +1,67 @@
+<script>
+  document.querySelector('body').setAttribute("data-bs-theme", "dark")
+</script>
+<!-- svelte-ignore a11y-invalid-attribute -->
+<!-- Blue Bar -->
+<nav class="navbar navbar-expand-lg bg-primary bg-gradient shadow">
+  <!-- Adds margin -->
+  <div class="container px-4 fw-semibold">
+    <!-- Left Content (Title) -->
+    <a class="navbar-brand m-0" href="index.html"
+      ><i class="bi bi-book"></i> Library System</a
+    >
+    <span class="navbar-text text-white-50 ms-2 d-sm-inline d-none"
+      >CTADVDBL Project</span
+    >
+    <!-- Small devices button -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarContent"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- If small device hide nav links (right side content) -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Align links to right  -->
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link disabled" href="#">All Books</a>
+        <a class="nav-link disabled" href="#">Authors</a>
+        <a class="nav-link disabled" href="#">Publishers</a>
+        <a class="nav-link" href="add-book.html">Add book</a>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            role="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="bi bi-person-fill"></i> Salles
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item disabled" href="#">Profile</a></li>
+            <li><a class="dropdown-item disabled" href="#">Settings</a></li>
+            <li>
+              <hr class="dropdown-divider" />
+            </li>
+            <li>
+              <a class="dropdown-item text-danger disabled" href="#">Log Out</a>
+            </li>
+          </ul>
+        </li>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .nav-link,
+  .navbar-brand {
+    color: white !important;
+  }
+  .navbar-nav .disabled {
+    color: rgb(202, 202, 202) !important;
+  }
+</style>
