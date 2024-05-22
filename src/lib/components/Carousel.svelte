@@ -1,5 +1,5 @@
 <script>
-  let src = '/cover.jpg'
+  let src = './cover.jpg'
 </script>
 
 <section>

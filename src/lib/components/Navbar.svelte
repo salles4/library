@@ -29,7 +29,7 @@
         <a class="nav-link disabled" href="#">All Books</a>
         <a class="nav-link disabled" href="#">Authors</a>
         <a class="nav-link disabled" href="#">Publishers</a>
-        <a class="nav-link" href="add-book.html">Add book</a>
+        <a class="nav-link" href="/#/add-book">Add book</a>
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"

@@ -1,9 +1,10 @@
 <script>
   import Router from 'svelte-spa-router';
   
-  import Navbar from "./lib/Navbar.svelte";
+  import Navbar from "./lib/components/Navbar.svelte";
   import Home from "./lib/Home.svelte";
   import Book from "./lib/Book.svelte";
+  import AddBook from './lib/AddBook.svelte';
 
 </script>
 
@@ -11,7 +12,8 @@
   <Navbar />
   <Router routes={{
     '/': Home,
-    '/book/:bookID': Book
+    '/book/:bookID': Book,
+    '/add-book': AddBook
   }} />
 </main>
 

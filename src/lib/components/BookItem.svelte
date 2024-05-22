@@ -5,7 +5,7 @@
 </script>
 
 <div class="card col-lg-3 col-6">
-  <img src="/{id}.jpg" alt="book cover"/>
+  <img src="./{id}.jpg" alt="book cover"/>
   <div class="card-body">
     <h5 class="card-title">{title}</h5>
     <a href="/#/book/{id}" class="btn btn-primary btn-sm stretched-link">Details</a>
