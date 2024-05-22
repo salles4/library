@@ -45,8 +45,8 @@
     <div id="details-container" class="container">
       <h1 id="book-title" class="mb-2 pb-2">{book.title}</h1>
       <p id="book-description" class="">{book.description}</p>
-      <p><b>Author:</b> <a href="/#/author/{book.author.id}">{book.author.name}</a></p>
-      <p><b>Publisher:</b> <a href="/#/publisher/{book.publisher.id}">{book.publisher.name}</a></p>
+      <p><b>Author:</b> <a href="./#/author/{book.author.id}">{book.author.name}</a></p>
+      <p><b>Publisher:</b> <a href="./#/publisher/{book.publisher.id}">{book.publisher.name}</a></p>
       <p><b>Category:</b> <a href="/">{book.category}</a></p>
     </div>
   </div>

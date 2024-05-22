@@ -8,8 +8,8 @@
   <img src="./{id}.jpg" alt="book cover"/>
   <div class="card-body">
     <h5 class="card-title">{title}</h5>
-    <a href="/#/book/{id}" class="btn btn-primary btn-sm stretched-link">Details</a>
-    <a class="btn btn-danger btn-sm" href="/#/book/{id}"><i class="bi bi-heart"></i></a>
+    <a href="./#/book/{id}" class="btn btn-primary btn-sm stretched-link">Details</a>
+    <a class="btn btn-danger btn-sm" href="./#/book/{id}"><i class="bi bi-heart"></i></a>
   </div>
 </div>
 <style>

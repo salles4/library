@@ -7,7 +7,7 @@
   <!-- Adds margin -->
   <div class="container px-4 fw-semibold">
     <!-- Left Content (Title) -->
-    <a class="navbar-brand m-0" href="index.html"
+    <a class="navbar-brand m-0" href="./#/"
       ><i class="bi bi-book"></i> Library System</a
     >
     <span class="navbar-text text-white-50 ms-2 d-sm-inline d-none"
@@ -29,7 +29,7 @@
         <a class="nav-link disabled" href="#">All Books</a>
         <a class="nav-link disabled" href="#">Authors</a>
         <a class="nav-link disabled" href="#">Publishers</a>
-        <a class="nav-link" href="/#/add-book">Add book</a>
+        <a class="nav-link" href="./#/add-book">Add book</a>
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
