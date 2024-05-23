@@ -1,45 +1,44 @@
 <script>
-  import Router from "svelte-spa-router";
-  import Navbar from "./components/Navbar.svelte";
   import Carousel from "./components/Carousel.svelte";
   import BookItem from "./components/BookItem.svelte";
+  import SectionLabel from "./components/SectionLabel.svelte";
 
   import { supabase } from "../supabase";
-  import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
+  import Loading from "./components/Loading.svelte";
 
   let books;
-  async function getBooks(){
-    const {data, error} = await supabase.from("books").select("id, title")
-    books = data
+  async function getBooks() {
+    const { data, error } = await supabase.from("books").select("id, title, author(name)");
+    books = data;
     console.log(books);
   }
-getBooks()
+  getBooks();
 </script>
-<main>
+
+<main in:fade={{ duration: 500 }}>
   <Carousel />
+  <!--* Books Section -->
   <section class="container">
-    <!--* Section Label -->
-    <div
-        id="book-title"
-        class="border-bottom border-2 d-flex justify-content-between mb-2">
-        <h2 class="my-3"><i class="bi bi-journal"></i> Books</h2>
-        <div class="align-middle align-self-center">
-            <button class="btn btn-primary btn-sm">See All -</button>
-        </div>
-    </div>
+    <SectionLabel title="Books" icon="journal" link="#" />
     {#if !books}
-      <!--* Book Loading -->
-      <div class="d-flex justify-content-center" id="book-loading">
-        <div class="spinner-grow text-primary m-5" role="status"></div>
-      </div>
+      <Loading />
     {:else}
-    <!--* Book List -->
       <div class="row" id="book-list">
         {#each Object.entries(books) as [i, book]}
-          <BookItem title={book.title} id={book.id}/>
+          <BookItem title={book.title} id={book.id} author={book.author.name}/>
         {/each}
       </div>
     {/if}
-    
+  </section>
+  <!--* Authors Section  -->
+  <section class="container">
+    <SectionLabel title="Authors" icon="person" link="#" />
+    <Loading />
+  </section>
+  <!--* Publishers Section  -->
+  <section class="container">
+    <SectionLabel title="Publishers" icon="building" link="#" />
+    <Loading />
   </section>
 </main>

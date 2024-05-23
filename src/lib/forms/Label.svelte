@@ -1,1 +1,0 @@
-<label class="col-sm-4 col-md-3 col-form-label" for="book-name"><slot /></label>
