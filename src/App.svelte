@@ -6,18 +6,25 @@
   import Book from "./lib/Book.svelte";
   import AddBook from './lib/AddBook.svelte';
   import Author from './lib/Author.svelte';
+  import Publisher from './lib/Publisher.svelte';
 
+  const client = true
 </script>
 
-<main>
+
+  {#if client}
   <Navbar />
   <Router routes={{
     '/': Home,
     '/book/:bookID': Book,
     '/add-book': AddBook,
-    '/author/:authorID': Author
+    '/author/:authorID': Author,
+    '/publisher/:publisherID': Publisher
   }} />
-</main>
+  {:else}
+  <h1>Not Logged in</h1>
+  {/if}
+
 
 <style>
 
