@@ -5,10 +5,12 @@
   import { fade } from "svelte/transition";
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
+  import BookItem from "./item/BookItem.svelte";
   export let params;
   let publisherID = params.publisherID;
 
   let publisher;
+  let publisherBooks;
   async function getData() {
     const { data, error } = await supabase
       .from("publisher")
@@ -16,13 +18,20 @@
       .eq("id", publisherID);
     console.log(data);
     publisher = data[0];
+
+    const { data: bookData, error: bookError } = await supabase
+      .from("books")
+      .select("id, title, author(name)")
+      .eq("publisher_id", publisherID);
+    console.log(bookData);
+    publisherBooks = bookData;
   }
   onMount(getData);
 
   let img = "./default-profile.jpg";
 </script>
 
-<section class="container" in:fade="{{duration: 500}}">
+<section class="container" in:fade={{ duration: 500 }}>
   <!--* Section Label -->
   <TitleLabel text="Publisher Details" />
   <!--* Section Content -->
@@ -63,8 +72,13 @@
 <section class="container">
   <!--* Section Label -->
   <SectionLabel title="Books" icon="journal" />
-  <!--* Section Loading -->
+  {#if publisherBooks}
+  <div class="row">
+    {#each Object.entries(publisherBooks) as [i, book]}
+      <BookItem title={book.title} id={book.id} author={book.author.name} />
+    {/each}
+  </div>
+  {:else}
   <Loading />
-  <!--* Section Content -->
-  <div class="row" id="book-list"></div>
+  {/if}
 </section>

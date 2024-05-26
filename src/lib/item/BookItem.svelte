@@ -11,9 +11,9 @@
   <div class="card-body">
     <h5 class="card-title"><a class="stretched-link" href="./#/book/{id}">{title}</a></h5>
     <small class="card-text"><i class="bi bi-person"></i> {author}</small>
-    <div>
+    <!-- <div>
       <span class="badge rounded-pill text-bg-secondary">Unavailable</span>
-    </div>
+    </div> -->
   </div>
 </div>
 <style>
@@ -30,6 +30,6 @@
   }
   a{
     text-decoration: none;
-    color: white;
+    color: var(--bs-body-color);
   }
 </style>

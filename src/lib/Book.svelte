@@ -11,7 +11,7 @@
   async function getData() {
     const { data, error } = await supabase
       .from("books")
-      .select("title, description, author(id, name), publisher(id, name)")
+      .select("title, description, author(id, name), publisher(id, name), category(name)")
       .eq("id", bookID);
     console.log(data);
     book = data[0];
@@ -59,7 +59,7 @@
         </p>
         <p><b>Category:</b> 
           <a href="/">
-            {book.category}
+            {book.category.name}
           </a>
         </p>
         <button class="btn btn-primary">Borrow</button>

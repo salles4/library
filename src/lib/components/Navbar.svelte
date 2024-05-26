@@ -1,5 +1,12 @@
 <script>
-  document.querySelector('body').setAttribute("data-bs-theme", "dark")
+  
+  let classTheme = localStorage.getItem("theme") || "light"
+  function toggle(){
+    classTheme = classTheme == "light" ? "dark" : "light";
+    localStorage.setItem("theme", classTheme)
+  }
+  $: document.querySelector('body').setAttribute("data-bs-theme", classTheme)
+  $: themeIcon = classTheme == "dark" ? "moon-stars-fill" : "brightness-high-fill";
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
 <!-- Blue Bar -->
@@ -7,12 +14,13 @@
   <!-- Adds margin -->
   <div class="container px-4 fw-semibold">
     <!-- Left Content (Title) -->
-    <a class="navbar-brand m-0" href="./#/"
-      ><i class="bi bi-book"></i> Library System</a
-    >
-    <span class="navbar-text text-white-50 ms-2 d-sm-inline d-none"
-      >CTADVDBL Project</span
-    >
+    <a class="navbar-brand m-0" href="./#/">
+      <i class="bi bi-book"></i> 
+      Library System
+      <small class="fs-6 text-white-50 ms-2 d-sm-inline d-none"> 
+        CTADVDBL Project
+      </small>
+    </a>
     <!-- Small devices button -->
     <button
       class="navbar-toggler"
@@ -51,6 +59,9 @@
             </li>
           </ul>
         </li>
+        <button title="Switch theme" class="px-1 border-0 bg-transparent nav-link" on:click={toggle}>
+          <span class="bi bi-{themeIcon}"></span>
+        </button>
       </div>
     </div>
   </div>

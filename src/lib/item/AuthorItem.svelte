@@ -5,7 +5,7 @@
 
 <div
     class="card col-md-2 col-4 border-1">
-    <img class="object-fit-contain rounded my-2" src="./default-profile.jpg" alt="author" />
+    <img class="object-fit-contain rounded my-2" height="150" src="./default-profile.jpg" alt="author" />
     <div class="card-body p-1">
       <h6 class="card-title text-center"><a class="stretched-link" href="./#/author/{id}">{name}</a></h6>
     </div>
@@ -17,6 +17,6 @@
   }
   a{
     text-decoration: none;
-    color: white;
+    color: var(--bs-body-color);
   }
 </style>

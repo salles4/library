@@ -5,10 +5,12 @@
   import { fade } from "svelte/transition";
   import SectionLabel from "./components/SectionLabel.svelte";
   import Loading from "./components/Loading.svelte";
+  import BookItem from "./item/BookItem.svelte";
   export let params;
   let authorID = params.authorID;
 
   let author;
+  let authorBooks;
   async function getData() {
     const { data, error } = await supabase
       .from("author")
@@ -16,6 +18,14 @@
       .eq("id", authorID);
     console.log(data);
     author = data[0];
+
+    const { data: bookData, error: bookError } = await supabase
+      .from("books")
+      .select("id, title, author(name)")
+      .eq("publisher_id", authorID);
+    console.log(bookData);
+    authorBooks = bookData;
+
   }
   onMount(getData);
 
@@ -51,9 +61,7 @@
           </p>
           <p>
             <b>Website:</b>
-            <a href="https://github.com/salles4/"
-              >salles4.github.io</a
-            >
+            <a href="https://github.com/salles4/">salles4.github.io</a>
           </p>
         </div>
       {:else}
@@ -63,7 +71,14 @@
   </section>
   <!-- ! Author Books -->
   <SectionLabel title="Books" icon="journal">
+    {#if authorBooks}
+      <div class="row">
+        {#each Object.entries(authorBooks) as [i, book]}
+          <BookItem title={book.title} id={book.id} author={book.author.name} />
+        {/each}
+      </div>
+    {:else}
     <Loading />
-    <div class="row"></div>
+    {/if}
   </SectionLabel>
 </main>

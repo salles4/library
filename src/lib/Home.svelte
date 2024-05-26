@@ -7,48 +7,91 @@
   import { fade } from "svelte/transition";
   import Loading from "./components/Loading.svelte";
   import AuthorItem from "./item/AuthorItem.svelte";
+  import PublisherItem from "./item/PublisherItem.svelte";
+  import Error from "./components/Error.svelte";
 
   let books;
   let authors;
+  let publishers;
+
+  let bookCatch;
+  let authorCatch;
+  let publisherCatch;
   async function getBooks() {
-    // const { data:bookData, error:bookError } = await supabase.from("books").select("id, title, author(name)");
-    const { data:bookData, error:bookError } = await supabase.rpc('get_books')
+    const { data: bookData, error: bookError } =
+      await supabase.rpc("get_books");
     books = bookData;
-    console.log(books)
-    const { data:authorData, error:authorError } = await supabase.from("author").select("id, name").neq('id', 0);
-    authors = authorData;
+    bookCatch = bookError ? bookError.message : ""; 
   }
-  getBooks();
+  async function getAuthors(){
+    const { data: authorData, error: authorError } = 
+      await supabase.rpc("get_authors");
+    authors = authorData;
+    authorCatch = authorError ? authorError.message : ""; 
+  }
+  async function getPublishers(){
+      const { data: publisherData, error: publisherError } = await supabase
+      .from("publisher")
+      .select("id, name")
+      .neq("id", 0);
+    publishers = publisherData;
+    publisherCatch = publisherError ? publisherError : ""; 
+  }
+  getBooks()
+  getAuthors()
+  getPublishers()
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
+  
   <Carousel />
+
   <!--* Books Section -->
+
   <SectionLabel title="Books" icon="journal" link="#">
-    {#if !books}
-      <Loading />
-    {:else}
+    {#if books}
       <div class="row">
         {#each Object.entries(books) as [i, book]}
-          <BookItem title={book.title} id={book.id} author={book.author}/>
+          <BookItem title={book.title} id={book.id} author={book.author} />
         {/each}
       </div>
-    {/if}
-  </SectionLabel>
-  <!--* Authors Section  -->
-  <SectionLabel title="Authors" icon="person" link="#">
-    {#if !authors}
-      <Loading />
+    {:else if bookCatch}
+      <Error message={bookCatch} />
     {:else}
-      <div class="row">
-        {#each Object.entries(authors) as [i, author]}
-          <AuthorItem id={author.id} name={author.name} />
-        {/each}
-      </div>
+      <Loading />
     {/if}
   </SectionLabel>
-  <!--* Publishers Section  -->
-  <SectionLabel title="Publishers" icon="building" link="#">
+
+  <!--* Authors Section  -->
+
+  <SectionLabel title="Authors" icon="person" link="#">
+    {#if authors}
+    <div class="row">
+      {#each Object.entries(authors) as [i, author]}
+      <AuthorItem id={author.id} name={author.name} />
+      {/each}
+    </div>
+    {:else if authorCatch}
+      <Error message={authorCatch} />
+    {:else}
     <Loading />
+    {/if}
   </SectionLabel>
+
+  <!--* Publishers Section  -->
+
+  <SectionLabel title="Publishers" icon="building" link="#">
+    {#if publishers}
+    <div class="row">
+      {#each Object.entries(publishers) as [i, publisher]}
+        <PublisherItem id={publisher.id} name={publisher.name} />
+      {/each}
+    </div>
+    {:else if publisherCatch}
+      <Error message={publisherCatch} />
+    {:else}
+    <Loading />
+  {/if}
+  </SectionLabel>
+
 </main>
