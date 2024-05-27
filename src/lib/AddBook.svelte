@@ -2,11 +2,35 @@
   import TitleLabel from "./components/TitleLabel.svelte";
   import Row from "./forms/Row.svelte";
   import { fade } from "svelte/transition";
+
+  let files;
+  let fileInput;
+  let previewClass = "d-none";
+  let previewSrc;
+  //   function previewChange(){
+  //     if(files.length === 0){
+  //       previewClass = "d-none"
+  //       return;
+  //     }
+  //     console.log(files);
+  //     previewClass = ""
+  //     const img = URL.createObjectURL(files[0])
+  //     previewSrc = img;
+  //}
+  $: if (files && files[0]) {
+    console.log(files);
+    previewClass = "";
+    const img = URL.createObjectURL(files[0]);
+    previewSrc = img;
+  } else {
+    console.log(files);
+    previewClass = "d-none";
+  }
 </script>
 
 <!--! Main Section ---------------------------->
-<section class="my-1 container px-5" in:fade="{{duration: 500}}">
-  <div class="container-fluid ">
+<section class="my-1 container px-5" in:fade={{ duration: 500 }}>
+  <div class="container-fluid">
     <!--* Section Label --------------------->
     <TitleLabel text="Add Book" />
     <!--* Section Content (2col if large) ---------->
@@ -26,21 +50,37 @@
             type="file"
             id="book-cover"
             accept="image/*"
+            bind:files
+            bind:this={fileInput}
           />
         </Row>
-        <div class="form-row d-none" id="preview-row">
-          <label for="cover-preview" class="form-label align-self-center"
-            >Preview:
+        <div class="my-3 row {previewClass}">
+          <label
+            for="cover-preview"
+            class="col-sm-4 col-md-3 col-form-label align-self-center"
+          >
+            Preview:
           </label>
-          <div class="form-input" id="preview-div">
-            <img src="" alt="Preview" id="cover-preview" height="150" />
-            <button class="btn btn-sm btn-danger">Remove</button>
+          <div class="col-sm-8 col-md-9" id="preview-div">
+            <img
+              src={previewSrc}
+              alt="Preview"
+              id="cover-preview"
+              height="150"
+            />
+            <button
+              class="btn btn-sm btn-danger"
+              on:click={() => {
+                fileInput.value = "";
+                files = "";
+              }}>Remove</button
+            >
           </div>
         </div>
       </div>
       <!--* Grouped Form ------------------------->
       <div class="col-sm-12 col-lg-6">
-        <Row label="Category: " id="book-category">
+        <Row label="Category:" id="book-category">
           <input class="form-control" type="text" id="book-category" />
         </Row>
         <Row label="Author: " id="book-author">
@@ -70,7 +110,7 @@
     <button class="btn btn-success" disabled id="add"
       ><i class="bi bi-plus-circle"></i> Add Book</button
     >
-    <a href="index.html">
+    <a href="./#/">
       <button class="btn btn-danger" id="cancel"
         ><i class="bi bi-x-circle"></i> Cancel</button
       >

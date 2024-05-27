@@ -30,10 +30,8 @@
     authorCatch = authorError ? authorError.message : ""; 
   }
   async function getPublishers(){
-      const { data: publisherData, error: publisherError } = await supabase
-      .from("publisher")
-      .select("id, name")
-      .neq("id", 0);
+      const { data: publisherData, error: publisherError } =
+        await supabase.rpc("get_publishers")
     publishers = publisherData;
     publisherCatch = publisherError ? publisherError : ""; 
   }

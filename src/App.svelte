@@ -7,8 +7,10 @@
   import AddBook from './lib/AddBook.svelte';
   import Author from './lib/Author.svelte';
   import Publisher from './lib/Publisher.svelte';
+  import StaffHome from './lib/staff/StaffHome.svelte';
 
   const client = true
+  const staff = true
 </script>
 
 
@@ -17,9 +19,14 @@
   <Router routes={{
     '/': Home,
     '/book/:bookID': Book,
-    '/add-book': AddBook,
     '/author/:authorID': Author,
     '/publisher/:publisherID': Publisher
+  }} />
+  {:else if staff}
+  <Navbar />
+  <Router routes={{
+    '/': StaffHome,
+    '/add-book': AddBook
   }} />
   {:else}
   <h1>Not Logged in</h1>

@@ -62,8 +62,7 @@
             {book.category.name}
           </a>
         </p>
-        <button class="btn btn-primary">Borrow</button>
-        <button class="btn btn-primary">Reserve</button>
+        
       </div>
     </div>
   {:else}
