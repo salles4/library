@@ -10,6 +10,7 @@
   import Publisher from './lib/Publisher.svelte';
   import StaffHome from './lib/staff/StaffHome.svelte';
   import Search from './lib/Search.svelte';
+  import Login from './lib/Login.svelte';
 
 
   let logged;
@@ -17,31 +18,33 @@
   accType.subscribe((value) => {
     logged = value;
   })
-  accType.set("client")
+  
 </script>
 
 
   {#if logged == "client"}
-  <Navbar accType={logged} />
+  <Navbar />
   <Router routes={{
     '/': Home,
     '/book/:bookID': Book,
     '/author/:authorID': Author,
     '/publisher/:publisherID': Publisher,
-    '/search': Search
+    '/search': Search,
+    '/search/author': Search,
+    '/search/publisher': Search
   }} />
   {:else if logged == "staff"}
-  <Navbar accType={logged}/>
+  <Navbar />
   <Router routes={{
     '/': StaffHome,
     '/add-book': AddBook,
-    '/search': Search
+    '/search': Search,
+    '/search/author': Search,
+    '/search/publisher': Search
   }} />
   {:else}
-  <h1>Not Logged in</h1>
+    <Router routes={{
+      '*': Login
+    }} />
   {/if}
 
-
-<style>
-
-</style>

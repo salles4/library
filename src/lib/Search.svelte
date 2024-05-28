@@ -8,6 +8,20 @@
   import PublisherItem from "./item/PublisherItem.svelte";
   import Loading from "./components/Loading.svelte";
   import { onMount } from "svelte";
+  import { location } from "svelte-spa-router";
+
+  function checkParam() {
+    switch ($location) {
+      case "/search/author":
+        select.value = "author";
+        break;
+      case "/search/publisher":
+        select.value = "publisher";
+        break;
+      default:
+        select.value = "books";
+    }
+  }
 
   const sqlSelect = {
     books: "id, title, author(name)",
@@ -17,37 +31,35 @@
   const sqlFilter = {
     books: "title",
     author: "name",
-    publisher: "name"
-  }
-
-  let searchType = 'books'
-  let searchValue = ""
+    publisher: "name",
+  };
+  let searchType = "books";
+  let searchValue = "";
   let searchResults = {
-    books:undefined,
-    author:undefined,
-    publisher:undefined
+    books: undefined,
+    author: undefined,
+    publisher: undefined,
   };
   let select;
 
-
   async function search() {
-    const newSearchType = select.value || "books"
-    console.log(newSearchType);
-    const { data, error } = await supabase
-    .from(newSearchType)
-    .select(sqlSelect[newSearchType])
-    .ilike(sqlFilter[newSearchType], `%${searchValue}%`);
+    searchType = select.value;
 
+    console.log(searchType);
+    const { data, error } = await supabase
+      .from(searchType)
+      .select(sqlSelect[searchType])
+      .ilike(sqlFilter[searchType], `%${searchValue}%`);
 
     error && console.log(error);
-    searchType = select.value
     searchResults.books = undefined;
-    searchResults.author = undefined
-    searchResults.publisher = undefined
-    searchResults[newSearchType] = data
-    searchResults = searchResults
+    searchResults.author = undefined;
+    searchResults.publisher = undefined;
+    searchResults[searchType] = data;
+    searchResults = searchResults;
   }
-  onMount(search)
+  onMount(checkParam);
+  onMount(search);
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -56,7 +68,12 @@
     class="row justify-content-center align-items-center my-4 mx-auto col-12"
   >
     <div class="col-auto col-md-2 p-0 pe-md-4">
-      <select name="searchtype" class="form-select" bind:this={select} on:change={search}>
+      <select
+        name="searchtype"
+        class="form-select"
+        bind:this={select}
+        on:change={search}
+      >
         <option selected value="books">Books</option>
         <option value="author">Author</option>
         <option value="publisher">Publisher</option>
@@ -81,27 +98,25 @@
     </button>
   </div>
   <div class="row">
-
-      {#if searchResults.books}
-        {#each Object.entries(searchResults.books) as [i, data]}
-          <BookItem title={data.title} id={data.id} author={data.author.name} />
-        {/each}
-      {:else if searchResults.author}
-        {#each Object.entries(searchResults.author) as [i, data]}
-          <AuthorItem id={data.id} name={data.name} />
-        {/each}
-      {:else if searchResults.publisher}
-        {#each Object.entries(searchResults.publisher) as [i, data]}
-          <PublisherItem id={data.id} name={data.name} />
-        {/each}
-        {:else}
-        <div class="d-flex justify-content-center">
-          <div class="text-center">
-            <h1><i class="bi bi-patch-question"></i></h1>
-            <h4>No Results</h4>
-          </div>
+    {#if searchResults.books}
+      {#each Object.entries(searchResults.books) as [i, data]}
+        <BookItem title={data.title} id={data.id} author={data.author.name} />
+      {/each}
+    {:else if searchResults.author}
+      {#each Object.entries(searchResults.author) as [i, data]}
+        <AuthorItem id={data.id} name={data.name} />
+      {/each}
+    {:else if searchResults.publisher}
+      {#each Object.entries(searchResults.publisher) as [i, data]}
+        <PublisherItem id={data.id} name={data.name} />
+      {/each}
+    {:else}
+      <div class="d-flex justify-content-center">
+        <div class="text-center">
+          <h1><i class="bi bi-patch-question"></i></h1>
+          <h4>No Results</h4>
         </div>
-      {/if}
-
+      </div>
+    {/if}
   </div>
 </main>

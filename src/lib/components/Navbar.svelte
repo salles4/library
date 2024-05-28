@@ -1,5 +1,8 @@
 <script>
-  export let accType;
+  import {  accType } from "../../store";
+  
+  let logged;
+  accType.subscribe((value) => logged = value)
   
   let classTheme = localStorage.getItem("theme") || "light"
   function toggle(){
@@ -9,6 +12,10 @@
   $: document.querySelector('body').setAttribute("data-bs-theme", classTheme)
   $: themeIcon = classTheme == "dark" ? "moon-stars-fill" : "brightness-high-fill";
 
+  function logOut(){
+    accType.set("")
+    localStorage.removeItem("accType")
+  }
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
 <!-- Blue Bar -->
@@ -36,10 +43,10 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Align links to right  -->
       <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="/#/search">All Books</a>
-        <a class="nav-link" href="/#/search">Authors</a>
-        <a class="nav-link" href="/#/search">Publishers</a>
-        {#if accType == "staff"}
+        <a class="nav-link" href="./#/search">All Books</a>
+        <a class="nav-link" href="./#/search/author">Authors</a>
+        <a class="nav-link" href="./#/search/publisher">Publishers</a>
+        {#if logged == "staff"}
         <a class="nav-link" href="./#/add-book">Add book</a>
         {/if}
         <li class="nav-item dropdown">
@@ -59,7 +66,7 @@
               <hr class="dropdown-divider" />
             </li>
             <li>
-              <a class="dropdown-item text-danger disabled" href="#">Log Out</a>
+              <a class="dropdown-item text-danger" href="/#/" on:click={logOut}>Log Out</a>
             </li>
           </ul>
         </li>
