@@ -4,7 +4,7 @@
 </script>
 
 <div
-    class="card col-md-2 col-4 border-1 mb-5">
+    class="card col-md-2 col-4 border-1">
     <img class="object-fit-contain rounded my-2" height="150" src="./default-profile.jpg" alt="publisher" />
     <div class="card-body p-1">
       <h6 class="card-title text-center"><a class="stretched-link" href="./#/publisher/{id}">{name}</a></h6>

@@ -40,7 +40,7 @@
   getPublishers()
 </script>
 
-<main class="container" in:fade={{ duration: 500 }}>
+<main class="container mb-5" in:fade={{ duration: 500 }}>
   
   <Carousel />
 
@@ -48,7 +48,7 @@
 
   <SectionLabel title="Books" icon="journal" link="#">
     {#if books}
-      <div class="row">
+      <div class="row justify-content-around">
         {#each Object.entries(books) as [i, book]}
           <BookItem title={book.title} id={book.id} author={book.author} />
         {/each}
@@ -64,7 +64,7 @@
 
   <SectionLabel title="Authors" icon="person" link="#">
     {#if authors}
-    <div class="row">
+    <div class="row justify-content-around">
       {#each Object.entries(authors) as [i, author]}
       <AuthorItem id={author.id} name={author.name} />
       {/each}
@@ -80,7 +80,7 @@
 
   <SectionLabel title="Publishers" icon="building" link="#">
     {#if publishers}
-    <div class="row">
+    <div class="row justify-content-around">
       {#each Object.entries(publishers) as [i, publisher]}
         <PublisherItem id={publisher.id} name={publisher.name} />
       {/each}

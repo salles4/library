@@ -1,4 +1,5 @@
 <script>
+  export let accType;
   
   let classTheme = localStorage.getItem("theme") || "light"
   function toggle(){
@@ -7,6 +8,7 @@
   }
   $: document.querySelector('body').setAttribute("data-bs-theme", classTheme)
   $: themeIcon = classTheme == "dark" ? "moon-stars-fill" : "brightness-high-fill";
+
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
 <!-- Blue Bar -->
@@ -34,10 +36,12 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Align links to right  -->
       <div class="navbar-nav ms-auto">
-        <a class="nav-link disabled" href="#">All Books</a>
-        <a class="nav-link disabled" href="#">Authors</a>
-        <a class="nav-link disabled" href="#">Publishers</a>
+        <a class="nav-link" href="/#/search">All Books</a>
+        <a class="nav-link" href="/#/search">Authors</a>
+        <a class="nav-link" href="/#/search">Publishers</a>
+        {#if accType == "staff"}
         <a class="nav-link" href="./#/add-book">Add book</a>
+        {/if}
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"

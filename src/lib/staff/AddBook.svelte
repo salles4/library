@@ -1,6 +1,6 @@
 <script>
-  import TitleLabel from "./components/TitleLabel.svelte";
-  import Row from "./forms/Row.svelte";
+  import TitleLabel from "../components/TitleLabel.svelte";
+  import Row from "../forms/Row.svelte";
   import { fade } from "svelte/transition";
 
   let files;
