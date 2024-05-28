@@ -46,7 +46,7 @@
 
   <!--* Books Section -->
 
-  <SectionLabel title="Books" icon="journal" link="#">
+  <SectionLabel title="Books" icon="journal" link="search/">
     {#if books}
       <div class="row justify-content-around">
         {#each Object.entries(books) as [i, book]}
@@ -62,7 +62,7 @@
 
   <!--* Authors Section  -->
 
-  <SectionLabel title="Authors" icon="person" link="#">
+  <SectionLabel title="Authors" icon="person" link="search/author">
     {#if authors}
     <div class="row justify-content-around">
       {#each Object.entries(authors) as [i, author]}
@@ -78,7 +78,7 @@
 
   <!--* Publishers Section  -->
 
-  <SectionLabel title="Publishers" icon="building" link="#">
+  <SectionLabel title="Publishers" icon="building" link="search/publisher">
     {#if publishers}
     <div class="row justify-content-around">
       {#each Object.entries(publishers) as [i, publisher]}

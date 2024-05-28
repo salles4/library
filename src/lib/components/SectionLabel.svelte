@@ -5,6 +5,7 @@
   export let icon;
   /** Button href, hide button if not defined */
   export let link = "";
+  export let linkText = "See All"
 </script>
 
 <section>
@@ -12,9 +13,11 @@
     <h4 class="my-3"><i class="bi bi-{icon}"></i> {title}</h4>
     {#if link !== ""}
       <div class="align-middle align-self-center">
+        <a href="./#/{link}">
         <button class="btn btn-outline-primary btn-sm">
-          See All <i class="bi bi-arrow-right"></i>
+          {linkText} <i class="bi bi-arrow-right"></i>
         </button>
+      </a>
       </div>
     {/if}
   </div>

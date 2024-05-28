@@ -3,7 +3,13 @@
   import { supabase } from "../supabase";
   import { onMount } from "svelte";
   import { fade } from "svelte/transition";
+  import { accType } from "../store";
   import Loading from "./components/Loading.svelte";
+  import SectionLabel from "./components/SectionLabel.svelte";
+
+  let logged;
+  accType.subscribe(value => logged=value)
+
   export let params;
   let bookID = params.bookID;
 
@@ -17,6 +23,15 @@
     book = data[0];
   }
   onMount(getData);
+
+  let dataObj = {
+    0:{barcode:"13251235173", status:"Available"},
+    1:{barcode:"128736197689", status:"Reserved"},
+    2:{barcode:"351313525135", status:"Borrowed"}
+  }
+  function getColor(status){
+    return status == "Available" ? "table-success" : "table-secondary";
+  }
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -69,4 +84,44 @@
     <Loading />
   {/if}
 </section>
+
+{#if logged == "staff"}
+<SectionLabel title="Status" icon="journal">
+  <table class="table table-bordered table-striped text-center align-middle">
+    <thead >
+      <tr>
+        <th class="py-3 col-3">Barcode</th>
+        <th class="py-3 col-5">Student</th>
+        <th class="py-3 col-2">Status</th>
+        <!-- <th class="py-3">Actions</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      {#each Object.entries(dataObj) as [i, data]}
+        <tr>
+          <td>{data.barcode}</td>
+          <td>{data.status != "Available" ? "Francis James E. Salles" : "--"}</td>
+            <td class={
+              data.status == "Available" ? "text-bg-success" :
+              data.status == "Reserved" ? "text-bg-secondary" : "text-bg-danger"
+            }>{data.status}</td>
+            <!-- <td>
+              <button class="btn btn-outline-primary btn-sm fs-5" title="Borrow"><i class="bi bi-journal-arrow-up"></i></button>
+              <button class="btn btn-outline-primary btn-sm fs-5" title="Return"><i class="bi bi-journal-arrow-down"></i></button>
+              <button class="btn btn-outline-primary btn-sm fs-5" title="Hide"><i class="bi bi-eye"></i></button>
+            </td> -->
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+  <div class="row justify-content-center align-items-center">
+    <label for="copy" class="form=control col-auto">Add Copy:</label>
+    <div class="col-7">
+      <input type="text" class="form-control" placeholder="Barcode Number">
+    </div>
+    <button class="btn btn-primary col-auto">Add</button>
+  </div>
+</SectionLabel>
+{/if}
+<div class="my-5"></div>
 </main>

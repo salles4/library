@@ -37,10 +37,13 @@
   <Navbar />
   <Router routes={{
     '/': StaffHome,
-    '/add-book': AddBook,
+    '/book/:bookID': Book,
+    '/author/:authorID': Author,
+    '/publisher/:publisherID': Publisher,
     '/search': Search,
     '/search/author': Search,
-    '/search/publisher': Search
+    '/search/publisher': Search,
+    '/add-book': AddBook
   }} />
   {:else}
     <Router routes={{

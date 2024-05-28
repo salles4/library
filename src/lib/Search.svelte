@@ -10,6 +10,7 @@
   import { onMount } from "svelte";
   import { location } from "svelte-spa-router";
 
+  let loading = true;
   function checkParam() {
     switch ($location) {
       case "/search/author":
@@ -36,13 +37,14 @@
   let searchType = "books";
   let searchValue = "";
   let searchResults = {
-    books: undefined,
-    author: undefined,
-    publisher: undefined,
+    books: [],
+    author: [],
+    publisher: [],
   };
   let select;
 
   async function search() {
+    loading = true;
     searchType = select.value;
 
     console.log(searchType);
@@ -52,11 +54,13 @@
       .ilike(sqlFilter[searchType], `%${searchValue}%`);
 
     error && console.log(error);
-    searchResults.books = undefined;
-    searchResults.author = undefined;
-    searchResults.publisher = undefined;
+    searchResults.books = [];
+    searchResults.author = [];
+    searchResults.publisher = [];
     searchResults[searchType] = data;
     searchResults = searchResults;
+    loading = false
+    console.log(loading, searchResults);
   }
   onMount(checkParam);
   onMount(search);
@@ -98,25 +102,29 @@
     </button>
   </div>
   <div class="row">
-    {#if searchResults.books}
+    {#if searchResults.books.length > 0}
       {#each Object.entries(searchResults.books) as [i, data]}
         <BookItem title={data.title} id={data.id} author={data.author.name} />
       {/each}
-    {:else if searchResults.author}
+    {:else if searchResults.author.length > 0}
       {#each Object.entries(searchResults.author) as [i, data]}
         <AuthorItem id={data.id} name={data.name} />
       {/each}
-    {:else if searchResults.publisher}
+    {:else if searchResults.publisher.length > 0}
       {#each Object.entries(searchResults.publisher) as [i, data]}
         <PublisherItem id={data.id} name={data.name} />
       {/each}
     {:else}
-      <div class="d-flex justify-content-center">
-        <div class="text-center">
-          <h1><i class="bi bi-patch-question"></i></h1>
-          <h4>No Results</h4>
-        </div>
+    {#if !loading}
+    <div class="d-flex justify-content-center">
+      <div class="text-center">
+        <h1><i class="bi bi-patch-question"></i></h1>
+        <h4>No Results</h4>
       </div>
+    </div>
+      {:else}
+      <Loading />
+      {/if}
     {/if}
   </div>
 </main>

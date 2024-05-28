@@ -1,11 +1,12 @@
 <script>
+  import { fade } from "svelte/transition";
     import SectionLabel from "../components/SectionLabel.svelte";
     import FunctionItem from "../item/FunctionItem.svelte";
 
 
 </script>
 
-<main class="container">
+<main class="container" in:fade={{ duration: 500 }}>
     <SectionLabel title="Welcome!" icon="wrench-adjustable" />
     <div class="row">
         <FunctionItem name="Borrow" link="borrow" icon="journal-arrow-up" />
