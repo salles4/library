@@ -11,6 +11,7 @@
   import StaffHome from './lib/staff/StaffHome.svelte';
   import Search from './lib/Search.svelte';
   import Login from './lib/Login.svelte';
+  import Borrow from './lib/staff/Borrow.svelte';
 
 
   let logged;
@@ -43,7 +44,8 @@
     '/search': Search,
     '/search/author': Search,
     '/search/publisher': Search,
-    '/add-book': AddBook
+    '/add-book': AddBook,
+    '/borrow': Borrow
   }} />
   {:else}
     <Router routes={{

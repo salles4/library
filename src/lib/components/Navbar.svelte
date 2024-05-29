@@ -43,7 +43,7 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Align links to right  -->
       <div class="navbar-nav ms-auto">
-        <a class="nav-link" href="./#/search">All Books</a>
+        <a class="nav-link" href="./#/search">Books</a>
         <a class="nav-link" href="./#/search/author">Authors</a>
         <a class="nav-link" href="./#/search/publisher">Publishers</a>
         {#if logged == "staff"}
@@ -66,7 +66,7 @@
               <hr class="dropdown-divider" />
             </li>
             <li>
-              <a class="dropdown-item text-danger" href="/#/" on:click={logOut}>Log Out</a>
+              <a class="dropdown-item text-danger" href="./#/" on:click={logOut}>Log Out</a>
             </li>
           </ul>
         </li>

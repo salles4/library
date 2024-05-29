@@ -29,8 +29,8 @@
 </script>
 
 <!--! Main Section ---------------------------->
-<section class="my-1 container px-5" in:fade={{ duration: 500 }}>
-  <div class="container-fluid">
+<section class="my-1 container" in:fade={{ duration: 500 }}>
+  
     <!--* Section Label --------------------->
     <TitleLabel text="Add Book" />
     <!--* Section Content (2col if large) ---------->
@@ -104,7 +104,7 @@
         </Row>
       </div>
     </div>
-  </div>
+  
   <!--* Form Actions ----------------------------------->
   <div class="my-3">
     <button class="btn btn-success" disabled id="add"

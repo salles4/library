@@ -20,7 +20,7 @@
   </div>
   ```
  -->
-<div class="my-3 row">
+<div class="mb-4 row">
   <label class="col-sm-4 col-md-3 col-form-label" for={id} >{label}</label>
   <div class="col-sm-8 col-md-9">
     <slot />
