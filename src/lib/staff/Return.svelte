@@ -3,7 +3,7 @@
   import TitleLabel from "../components/TitleLabel.svelte";
   import Row from "../forms/Row.svelte";
 
-  let today = moment().format("YYYY-MM-DD");
+  let today = moment().format("YYYY-MM-DD HH:mm");
 
   let borrowDate = today;
   let returnDate = moment(today).add(5, 'days').format("YYYY-MM-DD");
@@ -13,23 +13,23 @@
 </script>
 
 <main class="container">
-  <TitleLabel text="Borrow Book" />
+  <TitleLabel text="Return Book" />
   <div class="row justify-content-center">
     <div class="col-sm-12 col-lg-6">
-      <Row label="Student ID:" id="book-name">
+      <Row label="Borrow ID:" id="book-name">
         <input class="form-control" type="text" id="book-name" />
       </Row>
-      <Row label="Book Barcode:" id="book-barcode">
-        <input class="form-control" type="text" id="book-barcode" />
+      <Row label="Note:" id="book-barcode">
+        <textarea class="form-control" rows="3" id="book-barcode" />
       </Row>
       <div class="mb-4 row justify-content-center">
         <label class="col-sm-4 col-md-3 col-form-label" for="borrow-date"
-          >Borrow Date:</label
+          >Borrow Time:</label
         >
         <div class="col-sm-5 col-md-6 col-7">
           <input
             class="form-control"
-            type="date"
+            type="datetime-local"
             id="borrow-date"
             bind:value={borrowDate}
           />
@@ -42,29 +42,10 @@
         </div>
       </div>
       <!-- Row -->
-      <div class="mb-4 row justify-content-center">
-        <label class="col-sm-4 col-md-3 col-form-label" for="return-date"
-          >Return Due Date:</label
-        >
-        <div class="col-sm-5 col-md-6 col-7">
-          <input
-            class="form-control"
-            type="date"
-            id="return-date"
-            bind:value={returnDate}
-          />
-        </div>
-        <div class="col-sm-3 col-md-3 col-auto">
-          <button
-            on:click={() => returnDate = moment(borrowDate).add(14, 'days').format("YYYY-MM-DD")}
-            class="w-100 btn btn-outline-primary">14 Days</button
-          >
-        </div>
-      </div>
-      <!-- Row -->
+      
       <div class="float-end">
         <button class=" btn btn-success"
-          ><i class="bi bi-arrow-up-circle"></i> Borrow</button
+          ><i class="bi bi-arrow-down-circle"></i> Return</button
         >
         <a href="./#/" class=" btn btn-danger">
           <i class="bi bi-x-circle"></i> Cancel

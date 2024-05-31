@@ -6,6 +6,7 @@
   import { accType } from "../store";
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
+  import Modal from "./components/Modal.svelte";
 
   let logged;
   accType.subscribe((value) => (logged = value));
@@ -18,9 +19,9 @@
     const { data, error } = await supabase
       .from("books")
       .select(
-        "title, description, author(id, name), publisher(id, name), category(name)",
+        "*, author(author_id, name), publisher(publisher_id, name)",
       )
-      .eq("id", bookID);
+      .eq("book_id", bookID);
     console.log(data);
     book = data[0];
   }
@@ -52,8 +53,12 @@
             width="300"
             style="object-fit: contain"
           />
+          <small class="text-secondary">ISBN: {book.isbn}</small>
           {#if logged == "client"}
-            <button class="btn btn-primary w-50">Reserve</button>
+            <button class="btn btn-primary w-50" data-bs-toggle="modal" data-bs-target="#reserve">Reserve</button>
+            <Modal id="reserve">
+              <div>Reserving Form</div>
+            </Modal>
           {/if}
         </div>
 
@@ -66,20 +71,24 @@
           </p>
           <p>
             <b>Author:</b>
-            <a href="./#/author/{book.author.id}">
+            <a href="./#/author/{book.author.author_id}">
               {book.author.name}
             </a>
           </p>
           <p>
             <b>Publisher:</b>
-            <a href="./#/publisher/{book.publisher.id}">
+            <a href="./#/publisher/{book.publisher.publisher_id}">
               {book.publisher.name}
             </a>
           </p>
           <p>
+            <b>Shelf Number: </b>
+              {book.shelf_number}
+          </p>
+          <p>
             <b>Category:</b>
             <a href="/">
-              {book.category.name}
+              <!-- {book.category.name} -->
             </a>
           </p>
         </div>
@@ -122,11 +131,6 @@
                     ? "text-bg-secondary"
                     : "text-bg-danger"}>{data.status}</td
               >
-              <!-- <td>
-              <button class="btn btn-outline-primary btn-sm fs-5" title="Borrow"><i class="bi bi-journal-arrow-up"></i></button>
-              <button class="btn btn-outline-primary btn-sm fs-5" title="Return"><i class="bi bi-journal-arrow-down"></i></button>
-              <button class="btn btn-outline-primary btn-sm fs-5" title="Hide"><i class="bi bi-eye"></i></button>
-            </td> -->
             </tr>
           {/each}
         </tbody>

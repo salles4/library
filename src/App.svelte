@@ -12,6 +12,8 @@
   import Search from './lib/Search.svelte';
   import Login from './lib/Login.svelte';
   import Borrow from './lib/staff/Borrow.svelte';
+  import Return from './lib/staff/Return.svelte';
+  import InvalidLink from './lib/InvalidLink.svelte';
 
 
   let logged;
@@ -32,7 +34,8 @@
     '/publisher/:publisherID': Publisher,
     '/search': Search,
     '/search/author': Search,
-    '/search/publisher': Search
+    '/search/publisher': Search,
+    '*': InvalidLink
   }} />
   {:else if logged == "staff"}
   <Navbar />
@@ -45,7 +48,9 @@
     '/search/author': Search,
     '/search/publisher': Search,
     '/add-book': AddBook,
-    '/borrow': Borrow
+    '/borrow': Borrow,
+    '/return': Return,
+    '*': InvalidLink
   }} />
   {:else}
     <Router routes={{

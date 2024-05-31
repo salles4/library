@@ -50,7 +50,7 @@
     {#if books}
       <div class="row justify-content-around">
         {#each Object.entries(books) as [i, book]}
-          <BookItem title={book.title} id={book.id} author={book.author} />
+          <BookItem title={book.title} id={book.book_id} author={book.author} />
         {/each}
       </div>
     {:else if bookCatch}
@@ -66,7 +66,7 @@
     {#if authors}
     <div class="row justify-content-around">
       {#each Object.entries(authors) as [i, author]}
-      <AuthorItem id={author.id} name={author.name} />
+      <AuthorItem id={author.author_id} name={author.name} />
       {/each}
     </div>
     {:else if authorCatch}
@@ -82,7 +82,7 @@
     {#if publishers}
     <div class="row justify-content-around">
       {#each Object.entries(publishers) as [i, publisher]}
-        <PublisherItem id={publisher.id} name={publisher.name} />
+        <PublisherItem id={publisher.publisher_id} name={publisher.name} />
       {/each}
     </div>
     {:else if publisherCatch}

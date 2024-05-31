@@ -25,9 +25,9 @@
   }
 
   const sqlSelect = {
-    books: "id, title, author(name)",
-    author: "id, name",
-    publisher: "id, name",
+    books: "book_id, title, author(name)",
+    author: "author_id, name",
+    publisher: "publisher_id, name",
   };
   const sqlFilter = {
     books: "title",
@@ -104,15 +104,15 @@
   <div class="row">
     {#if searchResults.books.length > 0}
       {#each Object.entries(searchResults.books) as [i, data]}
-        <BookItem title={data.title} id={data.id} author={data.author.name} />
+        <BookItem title={data.title} id={data.book_id} author={data.author.name} />
       {/each}
     {:else if searchResults.author.length > 0}
       {#each Object.entries(searchResults.author) as [i, data]}
-        <AuthorItem id={data.id} name={data.name} />
+        <AuthorItem id={data.author_id} name={data.name} />
       {/each}
     {:else if searchResults.publisher.length > 0}
       {#each Object.entries(searchResults.publisher) as [i, data]}
-        <PublisherItem id={data.id} name={data.name} />
+        <PublisherItem id={data.publisher_id} name={data.name} />
       {/each}
     {:else}
     {#if !loading}

@@ -15,13 +15,13 @@
     const { data, error } = await supabase
       .from("publisher")
       .select()
-      .eq("id", publisherID);
+      .eq("publisher_id", publisherID);
     console.log(data);
     publisher = data[0];
 
     const { data: bookData, error: bookError } = await supabase
       .from("books")
-      .select("id, title, author(name)")
+      .select("book_id, title, author(name)")
       .eq("publisher_id", publisherID);
     console.log(bookData);
     publisherBooks = bookData;
@@ -50,18 +50,19 @@
     </div>
     <!--* Details -->
     {#if publisher}
-      <div id="details-container" class="container">
-        <h1 id="publisher-name" class="mb-2 pb-2">{publisher.name}</h1>
-        <p id="publisher-bio" class="">
-          Lorem ipsum dolor sit amet pariatur est libero! Facilis ipsum est
-          voluptas animi aliquam dolorem sunt, iure consequuntur dignissimos
-          doloremque! Neque velit quas, illum, facere aliquam sed exercitationem
-          at voluptatem incidunt beatae voluptate deserunt.
+      <div class="container">
+        <h1 class="mb-2 pb-2">{publisher.name}</h1>
+        <p class="">
+          {#if publisher.bio == null}
+            <span class="text-secondary">No Description</span>
+            {:else}
+              {publisher.bio}
+            {/if}
         </p>
         <p>
           <b>Website:</b>
-          <a href="https://github.com/salles4/" id="publisher-website"
-            >salles4.github.io</a
+          <a href="https://{publisher.email}" id="publisher-website"
+            >{publisher.email}</a
           >
         </p>
       </div>
@@ -75,7 +76,7 @@
   {#if publisherBooks}
   <div class="row">
     {#each Object.entries(publisherBooks) as [i, book]}
-      <BookItem title={book.title} id={book.id} author={book.author.name} />
+      <BookItem title={book.title} id={book.book_id} author={book.author.name} />
     {/each}
   </div>
   {:else}

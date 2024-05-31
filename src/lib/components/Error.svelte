@@ -7,6 +7,6 @@
     <div class="text-center">
         <h2>Error</h2>
         <p>{code}: {message}</p>
-        <a href="/#/" class="fw-bold">Reload</a> 
+        <a href="./#/" class="fw-bold">Reload</a> 
     </div>
 </div>
