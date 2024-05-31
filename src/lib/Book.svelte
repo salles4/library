@@ -27,6 +27,14 @@
   }
   onMount(getData);
 
+  async function getHoldings(){
+    const {data, error} = await supabase
+    .from("library_holdings")
+    .select()
+    .eq("book_id", bookID)
+
+    return data;
+  }
   let dataObj = {
     0: { barcode: "13251235173", status: "Available" },
     1: { barcode: "128736197689", status: "Reserved" },
@@ -104,6 +112,13 @@
   {/if}
   {#if logged == "staff"}
     <SectionLabel title="Status" icon="journal">
+      {#await getHoldings() then holdings}
+      {#if holdings.length <= 0}
+      <div class="text-center my-5">
+        <h3>No Library Holdings.</h3>
+        <small>Add a copy below</small>
+      </div>
+      {:else}
       <table
         class="table table-bordered table-striped text-center align-middle"
       >
@@ -112,11 +127,13 @@
             <th class="py-3 col-3">Barcode</th>
             <th class="py-3 col-5">Student</th>
             <th class="py-3 col-2">Status</th>
-            <!-- <th class="py-3">Actions</th> -->
+            <th class="py-3 col-1">Actions</th>
           </tr>
         </thead>
+        
+        
         <tbody>
-          {#each Object.entries(dataObj) as [i, data]}
+          {#each Object.entries(holdings) as [i, data]}
             <tr>
               <td>{data.barcode}</td>
               <td
@@ -131,20 +148,24 @@
                     ? "text-bg-secondary"
                     : "text-bg-danger"}>{data.status}</td
               >
+              <td><a href="./#/borrow?barcode={data.barcode}" class="btn btn-outline-primary btn-sm"><small>Borrow <i class="bi bi-box-arrow-up-right"></i></small></a></td>
             </tr>
           {/each}
         </tbody>
       </table>
+        
+        {/if}
+      {/await}
       <div class="row justify-content-center align-items-center">
         <label for="copy" class="form=control col-auto">Add Copy:</label>
-        <div class="col-7">
+        <div class="col-4">
           <input
             type="text"
             class="form-control"
             placeholder="Barcode Number"
           />
         </div>
-        <button class="btn btn-primary col-auto">Add</button>
+        <button class="btn btn-primary col-2">Add</button>
       </div>
     </SectionLabel>
   {/if}

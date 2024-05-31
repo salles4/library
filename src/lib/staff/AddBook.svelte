@@ -1,4 +1,5 @@
 <script>
+  import { supabase } from "../../supabase";
   import TitleLabel from "../components/TitleLabel.svelte";
   import Row from "../forms/Row.svelte";
   import { fade } from "svelte/transition";
@@ -25,6 +26,13 @@
   } else {
     console.log(files);
     previewClass = "d-none";
+  }
+
+  async function getAuthors(){
+    const {data, error} = await supabase
+    .from("author")
+    .select("name")
+    return data
   }
 </script>
 
@@ -93,7 +101,7 @@
           id="book-publisher"
         />
       </Row>
-      <Row label="Category: " id="book-category">
+      <Row label="ISBN: " id="book-isbn">
         <input class="form-control" type="text" id="book-isbn" />
       </Row>
     </div>
@@ -110,12 +118,12 @@
       >
     </a>
   </div>
-  <!--* Datalists (Invisible) ---------------------->
-  <datalist id="authors">
-    <option value="Jemma Development Group"> </option><option
-      value="Richard Osman"
-    >
-    </option></datalist
-  >
-  <datalist id="publishers"> <option value="Jemma Inc."> </option></datalist>
+  {#await getAuthors() then authors}
+      
+    <datalist id="authors">
+    {#each Object.entries(authors) as [i, author]}
+      <option value={author.name} />
+    {/each}
+    </datalist>
+    {/await }
 </section>

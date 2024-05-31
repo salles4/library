@@ -2,6 +2,7 @@
   import moment from "moment";
   import TitleLabel from "../components/TitleLabel.svelte";
   import Row from "../forms/Row.svelte";
+  import { fade } from "svelte/transition";
 
   let today = moment().format("YYYY-MM-DD HH:mm");
 
@@ -12,25 +13,33 @@
 
 </script>
 
-<main class="container">
+<main class="container" in:fade={{ duration: 500 }}>
   <TitleLabel text="Return Book" />
   <div class="row justify-content-center">
     <div class="col-sm-12 col-lg-6">
-      <Row label="Borrow ID:" id="book-name">
-        <input class="form-control" type="text" id="book-name" />
+      <Row label="Borrow ID:" id="book-id">
+        <input class="form-control" type="text" id="book-id" />
       </Row>
-      <Row label="Note:" id="book-barcode">
-        <textarea class="form-control" rows="3" id="book-barcode" />
+      <Row label="Condition:" id="book-condition">
+        <select class="form-select" id="book-condition">
+          <option>New</option>
+          <option>Good</option>
+          <option>Fair</option>
+          <option>Poor</option>
+        </select>
+      </Row>
+      <Row label="Note:" id="book-note">
+        <textarea class="form-control" rows="3" id="book-note" />
       </Row>
       <div class="mb-4 row justify-content-center">
-        <label class="col-sm-4 col-md-3 col-form-label" for="borrow-date"
-          >Borrow Time:</label
+        <label class="col-sm-4 col-md-3 col-form-label" for="return-time"
+          >Return Time:</label
         >
         <div class="col-sm-5 col-md-6 col-7">
           <input
             class="form-control"
             type="datetime-local"
-            id="borrow-date"
+            id="return-time"
             bind:value={borrowDate}
           />
         </div>

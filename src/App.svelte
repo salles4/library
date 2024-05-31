@@ -1,5 +1,5 @@
 <script>
-  import { accType } from './store'
+  import { accType, user_id} from './store'
   import Router from 'svelte-spa-router';
   
   import Navbar from "./lib/components/Navbar.svelte";
@@ -20,8 +20,10 @@
 
   accType.subscribe((value) => {
     logged = value;
+    const id = logged == "staff" ? "153827" : logged == "client" ? "263690" : "";
+    user_id.set(id)
+    localStorage.setItem("user_id", id)
   })
-  
 </script>
 
 

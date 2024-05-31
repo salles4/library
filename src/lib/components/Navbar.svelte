@@ -1,5 +1,5 @@
 <script>
-  import {  accType } from "../../store";
+  import { accType } from "../../store";
   
   let logged;
   accType.subscribe((value) => logged = value)
@@ -57,7 +57,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <i class="bi bi-person-fill"></i> Salles
+            <i class="bi bi-person-fill"></i> {localStorage.getItem("user_id")}
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item disabled" href="#">Profile</a></li>
