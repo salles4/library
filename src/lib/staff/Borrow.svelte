@@ -87,17 +87,24 @@
     .single()
 
     const borrowTime = moment(borrowDate).format("YYYY-MM-DDTHH:MMZ")
+    const dueTime = moment(returnDate).format("YYYY-MM-DDTHH:MMZ")
     console.log(holdingData);
     console.log(borrowTime);
     return;
-    const {error} = await supabase
+    const {error:insertingError} = await supabase
     .from("book_borrow")
     .insert({
       stud_id:studID,
       holding_id: holdingData.holding_id,
       staff_id: staffID,
-      borrowDate: borrowTime
+      borrowDate: borrowTime,
+      due_date: dueTime
     })
+
+    const {error:updatingError} = await supabase
+    .from("library_holdings")
+    .update({status:"Borrowed"})
+    .eq("holding_id", holdingData.holding_id)
   }
 </script>
 
