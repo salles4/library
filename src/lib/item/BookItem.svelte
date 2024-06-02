@@ -4,10 +4,12 @@
   /**Title of the book*/
   export let title;
   export let author;
+
+  let src = id > 4 ? "./book-cover.png" : `./${id}.jpg`;
 </script>
 
 <div class="card col-md-3 col-6">
-  <img src="./{id}.jpg" alt="book cover"/>
+  <img {src} alt="book cover"/>
   <div class="card-body">
     <h5 class="card-title"><a class="stretched-link" href="./#/book/{id}">{title}</a></h5>
     <small class="card-text"><i class="bi bi-person"></i> {author}</small>

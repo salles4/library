@@ -1,4 +1,5 @@
 <script>
+
   import TitleLabel from "./components/TitleLabel.svelte";
   import { supabase } from "../supabase";
   import { onMount } from "svelte";
@@ -10,36 +11,109 @@
 
   let logged;
   accType.subscribe((value) => (logged = value));
+  const loggedID = localStorage.getItem("user_id")
 
   export let params;
-  let bookID = params.bookID;
+  const bookID = params.bookID;
 
+  // Book Details
   let book;
   async function getData() {
     const { data, error } = await supabase
       .from("books")
-      .select(
-        "*, author(author_id, name), publisher(publisher_id, name)",
-      )
+      .select("*, author(author_id, name), publisher(publisher_id, name), category(name)")
       .eq("book_id", bookID);
     console.log(data);
     book = data[0];
   }
   onMount(getData);
-
-  async function getHoldings(){
-    const {data, error} = await supabase
-    .from("library_holdings")
-    .select()
-    .eq("book_id", bookID)
-
+  // Staff
+  let barcodeValue;
+  async function getHoldings() {
+    const {data, error} = await supabase.rpc("get_holdings", {bookid: bookID})
+    if(error){console.error(error)}
+    console.log(data);
     return data;
   }
-  let dataObj = {
-    0: { barcode: "13251235173", status: "Available" },
-    1: { barcode: "128736197689", status: "Reserved" },
-    2: { barcode: "351313525135", status: "Borrowed" },
-  };
+  async function addCopy(){
+    const {error} = await supabase
+    .from("library_holdings")
+    .insert({book_id:bookID, barcode:barcodeValue})
+    getHoldings()
+  }
+  // Client
+  let reserveID
+  let holdingCount = 0
+  $: reserveButtonText = `Reserved (${reserveID})`
+  let reserveButtonClass = "btn-secondary"
+  async function isReserved(){
+    const { data, error } = await supabase.rpc("isreserved", {bookid:bookID, studid:loggedID})
+    reserveID = data
+    
+  }
+  async function countHoldings(){
+    const {data:holding, error:holdingError} = await supabase
+      .from("library_holdings")
+      .select("barcode, holding_id")
+      .eq("book_id", bookID)
+      .eq("status", "Available")
+      holdingCount = holding.length
+  }
+  if(logged == "client"){
+    isReserved()
+    countHoldings();
+  }
+  async function reserve(){
+    const {data:holding, error:holdingError} = await supabase
+    .from("library_holdings")
+    .select("barcode, holding_id")
+    .eq("book_id", bookID)
+    .eq("status", "Available")
+    .limit(1)
+    .single();
+    if(holdingError) {console.error(holdingError); return;}
+
+    const {error:insertError} = await supabase
+    .from("book_reservation")
+    .insert({
+      stud_id:loggedID, 
+      holding_id: holding.holding_id, 
+    })
+    if(insertError) {console.error(insertError); return;}
+
+    const {data:updateData, error:updateError} = await supabase
+    .from("library_holdings")
+    .update({status: "Reserved"})
+    .eq("barcode", holding.barcode)
+    .select("holding_id")
+    .single()
+    if(updateError) {console.error(updateError); return;}
+    isReserved();
+  }
+  async function unreserve(){
+    const {data, error} = await supabase
+    .from("book_reservation")
+    .update({active: false})
+    .eq("reservation_id", reserveID)
+    .select()
+    .single()
+
+    const {error:holdingError} = await supabase
+    .from("library_holdings")
+    .update({status:"Available"})
+    .eq("holding_id", data.holding_id);
+
+    if(!error || !holdingError){
+      isReserved()
+      countHoldings()
+    }else{
+      console.error(error)
+      console.error(holdingError);
+    }
+  }
+  //temp
+  let src = bookID > 4 ? "./book-cover.png" : `./${bookID}.jpg`;
+  
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -55,7 +129,7 @@
           <img
             id="img-cover"
             class="border p-3"
-            src="./{bookID}.jpg"
+            {src}
             alt="book cover"
             height="300"
             width="300"
@@ -63,14 +137,40 @@
           />
           <small class="text-secondary">ISBN: {book.isbn}</small>
           {#if logged == "client"}
-            <button class="btn btn-primary w-50" data-bs-toggle="modal" data-bs-target="#reserve">Reserve</button>
-            <Modal id="reserve">
-              <div>Reserving Form</div>
-            </Modal>
+            {#if reserveID}
+            <button
+              class="btn {reserveButtonClass} w-75"
+              on:mouseenter={() => {
+                reserveButtonText = "Cancel Reservation"
+                reserveButtonClass = "btn-danger"
+              }}
+              on:mouseleave={() => {
+                reserveButtonText = `Reserved (${reserveID})`;
+                reserveButtonClass = "btn-secondary"
+              }}
+              on:click={unreserve}
+              ><i class="bi bi-x-circle"></i> {reserveButtonText}</button
+            >
+            {:else if holdingCount == 0}
+            <button
+              disabled
+              class="btn btn-secondary w-50"
+              >Unavailable</button
+            >  
+            {:else}
+            <button
+              disabled={false}
+              class="btn btn-primary w-50"
+              data-bs-toggle="modal"
+              data-bs-target="#reserve"
+              on:click={reserve}
+              >Reserve</button
+            >
+            {/if}
           {/if}
         </div>
 
-        <div id="details-container" class="container">
+        <div id="details-container" class="container mt-md-0 mt-3">
           <h1 id="book-title" class="mb-2 pb-2">
             {book.title}
           </h1>
@@ -90,14 +190,12 @@
             </a>
           </p>
           <p>
-            <b>Shelf Number: </b>
-              {book.shelf_number}
+            <b>Category:</b>
+              {book.category.name}
           </p>
           <p>
-            <b>Category:</b>
-            <a href="/">
-              <!-- {book.category.name} -->
-            </a>
+            <b>Shelf No.: </b>
+            {book.shelf_number}
           </p>
         </div>
       </div>
@@ -105,67 +203,74 @@
       <Loading />
     {/if}
   </section>
-  {#if logged == "client"}
+  <!-- {#if logged == "client"}
     <SectionLabel title="To Do" icon="check2-square">
       <div class="my-5">a</div>
     </SectionLabel>
-  {/if}
+  {/if} -->
   {#if logged == "staff"}
     <SectionLabel title="Status" icon="journal">
       {#await getHoldings() then holdings}
-      {#if holdings.length <= 0}
-      <div class="text-center my-5">
-        <h3>No Library Holdings.</h3>
-        <small>Add a copy below</small>
-      </div>
-      {:else}
-      <table
-        class="table table-bordered table-striped text-center align-middle"
-      >
-        <thead>
-          <tr>
-            <th class="py-3 col-3">Barcode</th>
-            <th class="py-3 col-5">Student</th>
-            <th class="py-3 col-2">Status</th>
-            <th class="py-3 col-1">Actions</th>
-          </tr>
-        </thead>
-        
-        
-        <tbody>
-          {#each Object.entries(holdings) as [i, data]}
-            <tr>
-              <td>{data.barcode}</td>
-              <td
-                >{data.status != "Available"
-                  ? "Francis James E. Salles"
-                  : "--"}</td
-              >
-              <td
-                class={data.status == "Available"
-                  ? "text-bg-success"
-                  : data.status == "Reserved"
-                    ? "text-bg-secondary"
-                    : "text-bg-danger"}>{data.status}</td
-              >
-              <td><a href="./#/borrow?barcode={data.barcode}" class="btn btn-outline-primary btn-sm"><small>Borrow <i class="bi bi-box-arrow-up-right"></i></small></a></td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-        
+        {#if holdings.length <= 0}
+          <div class="text-center my-5">
+            <h3>No Library Holdings.</h3>
+            <small>Add a copy below</small>
+          </div>
+        {:else}
+          <table
+            class="table table-bordered table-striped text-center align-middle"
+          >
+            <thead>
+              <tr>
+                <th class="py-3 col-3">Barcode</th>
+                <th class="py-3 col-5">Student</th>
+                <th class="py-3 col-2">Status</th>
+                <th class="py-3 col-1">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {#each Object.entries(holdings) as [i, data]}
+                <tr>
+                  <td>{data.barcode}</td>
+                  <td
+                    >{data.status != "Available"
+                      ? `${data.fname} ${data.lname}`
+                      : "--"}</td
+                  >
+                  <td
+                    class={data.status == "Available"
+                      ? "text-bg-success"
+                      : data.status == `Reserved`
+                        ? "text-bg-secondary"
+                        : "text-bg-danger"}>{data.status} {data.reservation_id ? `(${data.reservation_id})` : ""}</td
+                  >
+                  <td
+                    ><a
+                      href="./#/borrow?barcode={data.barcode}"
+                      class="btn btn-outline-primary btn-sm"
+                      ><small
+                        >Borrow <i class="bi bi-box-arrow-up-right"></i></small
+                      ></a
+                    ></td
+                  >
+                </tr>
+              {/each}
+            </tbody>
+          </table>
         {/if}
       {/await}
       <div class="row justify-content-center align-items-center">
         <label for="copy" class="form=control col-auto">Add Copy:</label>
         <div class="col-4">
           <input
+            bind:value={barcodeValue}
             type="text"
             class="form-control"
             placeholder="Barcode Number"
           />
         </div>
-        <button class="btn btn-primary col-2">Add</button>
+        <button on:click={addCopy} class="btn btn-primary col-2">Add</button>
       </div>
     </SectionLabel>
   {/if}

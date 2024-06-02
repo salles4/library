@@ -13,6 +13,10 @@
 
   let borrowDate = today;
   let returnDate = moment(today).add(daysDue, "days").format("YYYY-MM-DD");
+  $: daysGap = moment(returnDate)
+            .subtract(borrowDate, "days")
+            .subtract(1, "days")
+            .format('DD')
 
   let preview = false;
   let reserveID;
@@ -54,6 +58,23 @@
     }
     preview = !preview;
   }
+  async function fetchReserve(){
+    const {data, error} = await supabase
+    .from("book_reservation")
+    .select("stud_id, library_holdings(barcode)")
+    .eq("reservation_id", reserveID)
+    .single()
+
+    if (error || !data) {
+      reserveClass = "is-invalid"
+      console.error(error);
+    }else{
+      studID = data.stud_id;
+      // @ts-ignore
+      bookBarcode = data.library_holdings.barcode;
+      togglePreview()
+    }
+  }
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -64,7 +85,7 @@
         label="Reservation ID:"
         id="reserve"
         button="Fetch"
-        on:click={() => alert("Something")}
+        on:click={fetchReserve}
       >
         <input
           class="form-control {reserveClass}"
@@ -76,11 +97,11 @@
         <div class="invalid-feedback">Cannot Find Reservation</div>
       </RowButton>
       <hr class="mb-4">
-      <Row label="Student ID:" id="book-name">
+      <Row label="Student ID:" id="stud-id">
         <input
           class="form-control {studClass}"
           type="text"
-          id="book-name"
+          id="stud-id"
           bind:value={studID}
           on:keyup={() => (studClass = "")}
         />
@@ -105,6 +126,7 @@
             class="form-control"
             type="datetime-local"
             id="borrow-date"
+            max={moment(returnDate).format("YYYY-MM-DD HH:mm")}
             bind:value={borrowDate}
           />
         </div>
@@ -165,10 +187,7 @@
         />
         <RowPreview
           key="Return Due"
-          value="{moment(returnDate).format('MMMM DD, YYYY')} ({
-          moment(returnDate)
-            .subtract(borrowDate, "days")
-            .format('DD')} days)"
+          value="{moment(returnDate).format('MMMM DD, YYYY')} ({daysGap} days)"
         />
 
         <div class="float-end my-2">

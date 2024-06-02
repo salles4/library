@@ -14,6 +14,8 @@
   import Borrow from './lib/staff/Borrow.svelte';
   import Return from './lib/staff/Return.svelte';
   import InvalidLink from './lib/InvalidLink.svelte';
+  import AddAuthor from './lib/staff/AddAuthor.svelte';
+  import AddPublisher from './lib/staff/AddPublisher.svelte';
 
 
   let logged;
@@ -50,6 +52,8 @@
     '/search/author': Search,
     '/search/publisher': Search,
     '/add-book': AddBook,
+    '/add-author': AddAuthor,
+    '/add-publisher': AddPublisher,
     '/borrow': Borrow,
     '/return': Return,
     '*': InvalidLink
