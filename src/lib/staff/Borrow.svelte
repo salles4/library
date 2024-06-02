@@ -18,6 +18,8 @@
             .subtract(1, "days")
             .format('DD')
 
+  const staffID = localStorage.getItem("user_id")
+
   let preview = false;
   let reserveID;
   let studID;
@@ -56,7 +58,9 @@
       // @ts-ignore
       bookName = book.books.title;
     }
-    preview = !preview;
+    if(!bookError || !studError){
+      preview = !preview
+    }
   }
   async function fetchReserve(){
     const {data, error} = await supabase
@@ -75,12 +79,32 @@
       togglePreview()
     }
   }
+  async function addBorrow(){
+    const {data:holdingData, error:holdingError} = await supabase
+    .from("library_holdings")
+    .select("holding_id")
+    .eq("barcode", bookBarcode)
+    .single()
+
+    const borrowTime = moment(borrowDate).format("YYYY-MM-DDTHH:MMZ")
+    console.log(holdingData);
+    console.log(borrowTime);
+    return;
+    const {error} = await supabase
+    .from("book_borrow")
+    .insert({
+      stud_id:studID,
+      holding_id: holdingData.holding_id,
+      staff_id: staffID,
+      borrowDate: borrowTime
+    })
+  }
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
   <TitleLabel text="Borrow Book" />
   <div class="row justify-content-around">
-    <div class="col-sm-12 col-lg-6">
+    <div class="col-sm-12 col-lg-6 mb-3 mb-lg-0">
       <RowButton
         label="Reservation ID:"
         id="reserve"
@@ -180,7 +204,7 @@
         <RowPreview key="Borrow ID" value="-- Preview --" />
         <RowPreview key="Name" value={studName} />
         <RowPreview key="Book Title" value="{bookName} ({bookBarcode})" />
-        <RowPreview key="Staff Name" value="Francis James E. Salles (153827)" />
+        <RowPreview key="Staff Name" value="Francis James E. Salles ({staffID})" />
         <RowPreview
           key="Borrow Date"
           value={moment(borrowDate).format("MMMM DD, YYYY - hh:mm a")}
@@ -191,7 +215,7 @@
         />
 
         <div class="float-end my-2">
-          <button class=" btn btn-secondary"
+          <button class=" btn btn-secondary" on:click={addBorrow}
             ><i class="bi bi-arrow-up-circle"></i> Borrow</button
           >
         </div>

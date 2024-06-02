@@ -247,7 +247,11 @@
                   >
                   <td
                     ><a
-                      href="./#/borrow?barcode={data.barcode}"
+                      href={data.status == "Available"
+                        ? `./#/borrow?barcode=${data.barcode}`
+                        : data.status == `Reserved`
+                        ? `./#/borrow?reserve_id=${data.reservation_id}`
+                        : "text-bg-danger"}
                       class="btn btn-outline-primary btn-sm"
                       ><small
                         >Borrow <i class="bi bi-box-arrow-up-right"></i></small

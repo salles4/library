@@ -42,7 +42,7 @@
     <!-- If small device hide nav links (right side content) -->
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Align links to right  -->
-      <div class="navbar-nav ms-auto">
+      <div class="navbar-nav ms-auto text-center">
         <a class="nav-link" href="./#/search">Books</a>
         <a class="nav-link" href="./#/search/author">Authors</a>
         <a class="nav-link" href="./#/search/publisher">Publishers</a>
