@@ -13,10 +13,7 @@
 
   let borrowDate = today;
   let returnDate = moment(today).add(daysDue, "days").format("YYYY-MM-DD");
-  $: daysGap = moment(returnDate)
-            .subtract(borrowDate, "days")
-            .subtract(1, "days")
-            .format('DD')
+  $: daysGap = moment(returnDate).diff(borrowDate, "days")
 
   const staffID = localStorage.getItem("user_id")
 
@@ -105,6 +102,26 @@
     .from("library_holdings")
     .update({status:"Borrowed"})
     .eq("holding_id", holdingData.holding_id)
+  }
+  function getRandomInt() {
+    const min = Math.ceil(0);
+    const max = Math.floor(100);
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  }
+  async function generateID(){
+    let randomID = getRandomInt()
+    const {data, error} = await supabase
+    .from("book_reservation")
+    .select()
+    .eq("reservation_id", randomID)
+
+    if(data){
+      //if exists
+      randomID = getRandomInt()
+    }
+    //if not
+    return randomID;
+
   }
 </script>
 
