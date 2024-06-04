@@ -115,6 +115,7 @@
           class="form-control"
           type="text"
           id="book-name"
+          autocomplete="off"
         />
       </Row>
       <Row label="Book Description:" id="book-description">
@@ -123,6 +124,7 @@
           class="form-control"
           id="book-description"
           rows="6"
+          autocomplete="off"
         ></textarea>
       </Row>
       <Row label="Book Cover:" id="book-cover">
@@ -163,6 +165,7 @@
           class="form-control {categoryClass}"
           type="text"
           id="book-category"
+          autocomplete="off"
         />
         <div class="invalid-feedback">
           Category Not Found. Check spelling or <a
@@ -179,6 +182,7 @@
           class="form-control {authorClass}"
           type="text"
           id="book-author"
+          autocomplete="off"
         />
         <div class="invalid-feedback">
           Author Not Found. Check spelling or <a
@@ -195,6 +199,7 @@
           class="form-control {publisherClass}"
           type="text"
           id="book-publisher"
+          autocomplete="off"
         />
         <div class="invalid-feedback">
           Publisher Not Found. Check spelling or <a
@@ -210,6 +215,7 @@
           class="form-control"
           type="number"
           id="book-shelf"
+          autocomplete="off"
         />
       </Row>
       <Row label="ISBN: " id="book-isbn">
@@ -218,6 +224,7 @@
           class="form-control"
           type="text"
           id="book-isbn"
+          autocomplete="off"
         />
       </Row>
     </div>

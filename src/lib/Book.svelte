@@ -51,13 +51,20 @@
   }
   // Client
   let reserveID
+  let borrowID;
   let holdingCount = 0
   $: reserveButtonText = `Reserved (${reserveID})`
   let reserveButtonClass = "btn-secondary"
+  if(logged == "client"){
+    isBorrowed();
+    if(!borrowID){
+      isReserved()
+      countHoldings();
+    }
+  }
   async function isReserved(){
     const { data, error } = await supabase.rpc("isreserved", {bookid:bookID, studid:loggedID})
     reserveID = data
-    
   }
   async function countHoldings(){
     const {data:holding, error:holdingError} = await supabase
@@ -67,9 +74,9 @@
       .eq("status", "Available")
       holdingCount = holding.length
   }
-  if(logged == "client"){
-    isReserved()
-    countHoldings();
+  async function isBorrowed(){
+    const { data, error } = await supabase.rpc("isborrowed", {bookid:bookID, studid:loggedID})
+    borrowID = data
   }
   async function reserve(){
     const {data:holding, error:holdingError} = await supabase
@@ -168,7 +175,9 @@
           />
           <small class="text-secondary">ISBN: {book.isbn}</small>
           {#if logged == "client"}
-            {#if reserveID}
+            {#if borrowID}
+              <button class="btn btn-secondary w-75">Borrowed (#{borrowID})</button>
+            {:else if reserveID}
             <button
               class="btn {reserveButtonClass} w-75"
               on:mouseenter={() => {
@@ -176,7 +185,7 @@
                 reserveButtonClass = "btn-danger"
               }}
               on:mouseleave={() => {
-                reserveButtonText = `Reserved (${reserveID})`;
+                reserveButtonText = `Reserved (#${reserveID})`;
                 reserveButtonClass = "btn-secondary"
               }}
               on:click={unreserve}

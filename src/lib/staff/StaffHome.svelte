@@ -14,11 +14,11 @@
   <SectionLabel title="Add Data" icon="plus-circle">
     <div class="row justify-content-center gap-4">
       <FunctionItem name="Add Book" link="add-book" icon="journal-plus" />
-      <FunctionItem name="Add Author" link="add-author" icon="journal-plus" />
+      <FunctionItem name="Add Author" link="add-author" icon="person-fill-add" />
       <FunctionItem
         name="Add Publisher"
         link="add-publisher"
-        icon="journal-plus"
+        icon="building-add"
       />
     </div>
   </SectionLabel>

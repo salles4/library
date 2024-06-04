@@ -3,7 +3,8 @@
   document.querySelector("body").setAttribute("data-bs-theme", "dark");
   import { accType } from "../store";
   import { supabase } from "../supabase";
-
+  import {replace} from 'svelte-spa-router';
+  replace("/")
   /**
    * @param {string} id
    */

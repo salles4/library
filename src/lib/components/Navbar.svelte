@@ -39,7 +39,7 @@
   <!-- Adds margin -->
   <div class="container px-4 fw-semibold">
     <!-- Left Content (Title) -->
-    <a class="navbar-brand m-0" href="./#/">
+    <a class="navbar-brand m-0 px-2" href="./#/">
       <i class="bi bi-book"></i> 
       Library System
       <small class="fs-6 text-white-50 ms-2 d-sm-inline d-none"> 
@@ -101,5 +101,11 @@
   }
   .navbar-nav .disabled {
     color: rgb(202, 202, 202) !important;
+  }
+  a{
+    border-radius: 6px;
+  }
+  .nav-link:hover{
+    background-color: black;
   }
 </style>

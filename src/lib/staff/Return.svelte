@@ -105,7 +105,7 @@
         />
         <RowPreview
           key="Return Date"
-          value="{moment(returnDate).format('MMMM DD, YYYY hh:mm a')} ({daysGap} days)"
+          value="{moment(returnDate).format('MMMM DD, YYYY hh:mm a')} ({daysGap > 0 ? `+${daysGap}` : daysGap} days)"
         />
 
         <div class="float-end my-2">
