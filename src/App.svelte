@@ -1,6 +1,6 @@
 <script>
   import { accType, user_id} from './store'
-  import Router from 'svelte-spa-router';
+  import Router, {replace} from 'svelte-spa-router';
   
   import Navbar from "./lib/components/Navbar.svelte";
   import Home from "./lib/Home.svelte";
@@ -24,8 +24,13 @@
     logged = value;
     const id = logged == "staff" ? "153827" : logged == "client" ? "263690" : "";
     user_id.set(id)
-    localStorage.setItem("user_id", id)
+    localStorage.setItem("user_id", id);
   })
+  
+  function reroute(){
+    replace('/')
+    return ""
+  }
 </script>
 
 

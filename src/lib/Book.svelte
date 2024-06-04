@@ -23,7 +23,7 @@
       .from("books")
       .select("*, author(author_id, name), publisher(publisher_id, name), category(name)")
       .eq("book_id", bookID);
-    console.log(data);
+    console.table(data[0]);
     book = data[0];
   }
   onMount(getData);
@@ -32,10 +32,18 @@
   async function getHoldings() {
     const {data, error} = await supabase.rpc("get_holdings", {bookid: bookID})
     if(error){console.error(error)}
-    console.log(data);
+    console.table(data);
     return data;
   }
   async function addCopy(){
+    const {data} = await supabase
+    .from("library_holdings")
+    .select()
+    .eq("barcode", barcodeValue)
+    if(data.length != 0) {
+      return
+    }
+
     const {error} = await supabase
     .from("library_holdings")
     .insert({book_id:bookID, barcode:barcodeValue})
@@ -76,8 +84,9 @@
     const {error:insertError} = await supabase
     .from("book_reservation")
     .insert({
+      reservation_id: await generateID(),
       stud_id:loggedID, 
-      holding_id: holding.holding_id, 
+      holding_id: holding.holding_id 
     })
     if(insertError) {console.error(insertError); return;}
 
@@ -110,6 +119,28 @@
       console.error(error)
       console.error(holdingError);
     }
+  }
+    function getRandomInt() {
+    const min = 0;
+    const max = 9999;
+    return 3000000 + Math.floor(Math.random() * (max - min + 1));
+  }
+  async function generateID(){
+    let randomID = getRandomInt()
+    const {data, error} = await supabase
+    .from("book_reservation")
+    .select()
+    .eq("reservation_id", randomID)
+    console.log(data);
+    if(data.length != 0){
+      //if exists, generate again
+      randomID = getRandomInt()
+      console.log("exists");
+    }
+    //to return
+    console.log(randomID);
+    return randomID;
+
   }
   //temp
   let src = bookID > 4 ? "./book-cover.png" : `./${bookID}.jpg`;
@@ -161,8 +192,6 @@
             <button
               disabled={false}
               class="btn btn-primary w-50"
-              data-bs-toggle="modal"
-              data-bs-target="#reserve"
               on:click={reserve}
               >Reserve</button
             >
@@ -243,7 +272,7 @@
                       ? "text-bg-success"
                       : data.status == `Reserved`
                         ? "text-bg-secondary"
-                        : "text-bg-danger"}>{data.status} {data.reservation_id ? `(${data.reservation_id})` : ""}</td
+                        : "text-bg-danger"}>{data.status} {data.reservation_id ? `(${data.reservation_id})` : data.borrow_id ? `(${data.borrow_id})` : ""}</td
                   >
                   <td
                     ><a
@@ -271,6 +300,7 @@
             bind:value={barcodeValue}
             type="text"
             class="form-control"
+            id="copy"
             placeholder="Barcode Number"
           />
         </div>

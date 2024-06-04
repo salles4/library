@@ -1,9 +1,23 @@
 <script>
-  import { accType } from "../../store";
+  import { accType, user_id } from "../../store";
+  import { supabase } from "../../supabase";
   
   let logged;
+  let userID;
   accType.subscribe((value) => logged = value)
-  
+  user_id.subscribe(value => userID = value)
+
+  let lname;
+  async function getName(){
+    const {data, error} = await supabase
+    .from("account_details")
+    .select("lname")
+    .eq("user_id", userID)
+    .single()
+    if (error) console.error(error);
+    lname = data.lname;
+  }
+  getName()
   let classTheme = localStorage.getItem("theme") || "light"
   function toggle(){
     classTheme = classTheme == "light" ? "dark" : "light";
@@ -14,7 +28,9 @@
 
   function logOut(){
     accType.set("")
+    user_id.set("")
     localStorage.removeItem("accType")
+    localStorage.removeItem("user_id")
   }
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
@@ -57,7 +73,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            <i class="bi bi-person-fill"></i> {localStorage.getItem("user_id")}
+            <i class="bi bi-person-fill"></i> {lname}
           </a>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item disabled" href="#">Profile</a></li>

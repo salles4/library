@@ -13,11 +13,12 @@
 
   let borrowDate = today;
   let returnDate = moment(today).add(daysDue, "days").format("YYYY-MM-DD");
-  $: daysGap = moment(returnDate).diff(borrowDate, "days")
+  $: daysGap = moment(returnDate).diff(moment(borrowDate).format("YYYY-MM-DD"), "days")
 
   const staffID = localStorage.getItem("user_id")
 
   let preview = false;
+  let borrowID;
   let reserveID;
   let studID;
   let bookBarcode;
@@ -40,6 +41,7 @@
       .single();
     if (studError) {
       studClass = "is-invalid";
+      console.error(studError);
     }else{
       studName = `${stud.fname} ${stud.lname}`;
     }
@@ -51,11 +53,13 @@
       .single();
     if (bookError || !book) {
       barcodeClass = "is-invalid";
+      console.error(bookError);
     }else{
       // @ts-ignore
       bookName = book.books.title;
     }
     if(!bookError || !studError){
+      borrowID = await generateID()
       preview = !preview
     }
   }
@@ -64,6 +68,7 @@
     .from("book_reservation")
     .select("stud_id, library_holdings(barcode)")
     .eq("reservation_id", reserveID)
+    .eq("active", true)
     .single()
 
     if (error || !data) {
@@ -82,44 +87,64 @@
     .select("holding_id")
     .eq("barcode", bookBarcode)
     .single()
+    if(holdingError) console.error(holdingError);
 
     const borrowTime = moment(borrowDate).format("YYYY-MM-DDTHH:MMZ")
     const dueTime = moment(returnDate).format("YYYY-MM-DDTHH:MMZ")
-    console.log(holdingData);
-    console.log(borrowTime);
-    return;
+    
     const {error:insertingError} = await supabase
     .from("book_borrow")
     .insert({
+      borrow_id: borrowID,
       stud_id:studID,
       holding_id: holdingData.holding_id,
       staff_id: staffID,
-      borrowDate: borrowTime,
+      borrow_date: borrowTime,
       due_date: dueTime
     })
+    if(insertingError){
+      console.error(insertingError);
+      return;
+    }
+
+    const {data:updatedRow,error:dropReserveError} = await supabase
+    .from("book_reservation")
+    .update({staff_id:staffID, release_date: borrowTime, active: false})
+    .eq("active", true)
+    .eq("holding_id", holdingData.holding_id)
+    .select()
+    console.log("updated Rows:", updatedRow);
+    if(dropReserveError){
+      console.error(dropReserveError);
+      return;
+    }
 
     const {error:updatingError} = await supabase
     .from("library_holdings")
     .update({status:"Borrowed"})
     .eq("holding_id", holdingData.holding_id)
+    if(updatingError) console.error(updatingError);
   }
   function getRandomInt() {
-    const min = Math.ceil(0);
-    const max = Math.floor(100);
-    return Math.floor(Math.random() * (max - min + 1)) + min
+    const min = 0;
+    const max = 9999;
+    return "400" + Math.floor(Math.random() * (max - min + 1));
   }
+  generateID()
   async function generateID(){
     let randomID = getRandomInt()
     const {data, error} = await supabase
-    .from("book_reservation")
+    .from("book_borrow")
     .select()
-    .eq("reservation_id", randomID)
-
-    if(data){
-      //if exists
+    .eq("borrow_id", randomID)
+    console.log(data);
+    if(data.length != 0){
+      //if exists, generate again
       randomID = getRandomInt()
+      console.log("exists");
     }
-    //if not
+    //to return
+    console.log(randomID);
     return randomID;
 
   }
@@ -139,6 +164,7 @@
           class="form-control {reserveClass}"
           type="number"
           id="reserve"
+          placeholder="e.g 300xxx"
           bind:value={reserveID}
           on:keyup={() => (reserveClass = "")}
         />
@@ -160,6 +186,7 @@
           class="form-control {barcodeClass}"
           type="text"
           id="book-barcode"
+          placeholder="e.g 1000xxx"
           bind:value={bookBarcode}
           on:keyup={() => (barcodeClass = "")}
         />
@@ -225,7 +252,7 @@
     {#if preview}
       <div class="col-sm-12 col-lg-5 border border-1 px-5">
         <h3 class="py-4 text-center">Borrow Preview</h3>
-        <RowPreview key="Borrow ID" value="-- Preview --" />
+        <RowPreview key="Borrow ID" value={borrowID} />
         <RowPreview key="Name" value={studName} />
         <RowPreview key="Book Title" value="{bookName} ({bookBarcode})" />
         <RowPreview key="Staff Name" value="Francis James E. Salles ({staffID})" />
