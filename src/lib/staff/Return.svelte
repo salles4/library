@@ -15,7 +15,9 @@
   const staffID = localStorage.getItem("user_id")
 
   let preview = true
+  let holding_id
   let borrowID;
+  let returnID;
   let bookName;
   let bookBarcode;
   let studID;
@@ -34,8 +36,62 @@
     bookName = data.title;
     bookBarcode = data.barcode;
     returnDue = data.due_date
+    returnID = await generateID()
   }
-  function returnBook(){
+  async function returnBook(){
+    const { data, error } = await supabase
+    .from("book_return")
+    .insert({
+      return_id:await generateID(),
+      borrow_id:borrowID,
+      staff_id:staffID,
+      note:noteValue,
+      return_date: moment(returnDate).format("YYYY-MM-DDTHH:MMZ"),
+      condition: conditionValue
+    })
+    .select()
+    if(error) {
+      console.error(error);
+      return;
+    }
+    console.table(data);
+    const { data: updateHoldings, error: errorHoldings} = await supabase
+    .from("library_holdings")
+    .update({status:"Available", condition:conditionValue})
+    .eq("barcode", bookBarcode)
+    .select()
+    const { data: borrowUpdate, error: errorBorrow} = await supabase
+    .from("book_borrow")
+    .update({active:false})
+    .eq("borrow_id", borrowID)
+    .select()
+    if (errorHoldings || errorBorrow) {
+      console.error(errorHoldings);
+      console.error(errorBorrow);
+      return;
+    }
+    console.log(updateHoldings, borrowUpdate);
+  }
+  function getRandomInt() {
+    const min = 1000;
+    const max = 9999;
+    return "500" + Math.floor(Math.random() * (max - min + 1));
+  }
+  async function generateID(){
+    let randomID = getRandomInt()
+    const {data, error} = await supabase
+    .from("book_return")
+    .select()
+    .eq("return_id", randomID)
+    console.log(data);
+    if(data.length != 0){
+      //if exists, generate again
+      randomID = getRandomInt()
+      console.log("exists");
+    }
+    //to return
+    console.log(randomID);
+    return randomID;
 
   }
 </script>
@@ -90,8 +146,9 @@
     </div>
     {#if preview}
       <div class="col-sm-12 col-lg-5 border border-1 px-5" transition:fly={{ duration: 400, y:-60 }}>
-        <h3 class="py-4 text-center">Borrow Preview</h3>
+        <h3 class="py-4 text-center">Return Preview</h3>
         <RowPreview key="Borrow ID" value={borrowID} />
+        <RowPreview key="Return ID" value={returnID} />
         <RowPreview key="Name" value="{studName} ({studID})" />
         <RowPreview key="Book Title" value="{bookName} ({bookBarcode})" />
         <RowPreview key="Condition" value={conditionValue} />

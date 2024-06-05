@@ -126,11 +126,10 @@
     if(updatingError) console.error(updatingError);
   }
   function getRandomInt() {
-    const min = 0;
+    const min = 1000;
     const max = 9999;
     return "400" + Math.floor(Math.random() * (max - min + 1));
   }
-  generateID()
   async function generateID(){
     let randomID = getRandomInt()
     const {data, error} = await supabase

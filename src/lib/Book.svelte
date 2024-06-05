@@ -128,7 +128,7 @@
     }
   }
     function getRandomInt() {
-    const min = 0;
+    const min = 1000;
     const max = 9999;
     return 3000000 + Math.floor(Math.random() * (max - min + 1));
   }
