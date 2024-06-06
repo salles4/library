@@ -7,17 +7,26 @@
     id="homeAdCarousel"
     class="carousel slide"
     data-bs-ride="carousel"
-    data-bs-interval="8000"
+    data-bs-interval="5000"
   >
     <div class="carousel-inner">
       <div class="carousel-item active">
-        <img {src} class="d-block w-100" alt="..." />
+        <img src="./carousel/1.jpg" class="d-block w-100" alt="..." />
       </div>
       <div class="carousel-item">
-        <img {src} class="d-block w-100" alt="..." />
+        <img src="./carousel/2.jpg" class="d-block w-100" alt="..." />
       </div>
       <div class="carousel-item">
-        <img {src} class="d-block w-100" alt="..." />
+        <img src="./carousel/3.jpg" class="d-block w-100" alt="..." />
+      </div>
+      <div class="carousel-item">
+        <img src="./carousel/4.jpg" class="d-block w-100" alt="..." />
+      </div>
+      <div class="carousel-item">
+        <img src="./carousel/5.jpg" class="d-block w-100" alt="..." />
+      </div>
+      <div class="carousel-item">
+        <img src="./carousel/6.jpg" class="d-block w-100" alt="..." />
       </div>
     </div>
     <button

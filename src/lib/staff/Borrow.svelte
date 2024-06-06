@@ -241,7 +241,7 @@
           class=" btn btn-success"
           on:click={() => {
             togglePreview();
-          }}><i class="bi bi-receipt"></i> Preview</button
+          }}><i class="bi bi-receipt"></i> Borrow</button
         >
         <a href="./#/" class=" btn btn-danger">
           <i class="bi bi-x-circle"></i> Cancel
@@ -266,7 +266,7 @@
 
         <div class="float-end my-2">
           <button class=" btn btn-secondary" on:click={addBorrow}
-            ><i class="bi bi-arrow-up-circle"></i> Borrow</button
+            ><i class="bi bi-arrow-up-circle"></i> Confirm</button
           >
         </div>
       </div>

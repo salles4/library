@@ -9,13 +9,14 @@
   let today = moment().format("YYYY-MM-DD HH:mm");
 
   let returnDate = today
-  let returnDue = moment().subtract("5", "days");
+  let returnDue = "";
   $: daysGap = moment(returnDate).diff(moment(returnDue).format("YYYY-MM-DD"), "days") * -1
   
   const staffID = localStorage.getItem("user_id")
 
-  let preview = true
-  let holding_id
+  let borrowIDClass = "";
+
+  let preview = false
   let borrowID;
   let returnID;
   let bookName;
@@ -26,6 +27,17 @@
   let conditionValue;
 
   async function togglePreview(){
+    const {data:borrowIDData, error:IDError} = await supabase
+    .from("book_borrow")
+    .select()
+    .eq("borrow_id", borrowID)
+    .eq("active", true)
+    .maybeSingle()
+
+    if(!borrowIDData) {
+      borrowIDClass = "is-invalid"
+      return
+    }
     const {data:borrowInfo, error} = await supabase.rpc("getborrowinfo", {borrowid: borrowID})
     console.error(error);
     console.table(borrowInfo)
@@ -37,6 +49,7 @@
     bookBarcode = data.barcode;
     returnDue = data.due_date
     returnID = await generateID()
+    preview = !preview
   }
   async function returnBook(){
     const { data, error } = await supabase
@@ -72,6 +85,8 @@
     }
     console.log(updateHoldings, borrowUpdate);
   }
+
+  //Random id generator
   function getRandomInt() {
     const min = 1000;
     const max = 9999;
@@ -99,9 +114,12 @@
 <main class="container" in:fade={{ duration: 500 }}>
   <TitleLabel text="Return Book" />
   <div class="row justify-content-around">
-    <div class="col-sm-12 col-lg-6">
+    <div class="col-sm-12 col-lg-6 mb-sm-4">
       <Row label="Borrow ID:" id="book-id">
-        <input class="form-control" type="text" id="book-id" bind:value={borrowID}/>
+        <input class="form-control {borrowIDClass}" on:keyup={()=>borrowIDClass = ""} type="text" id="book-id" bind:value={borrowID}/>
+        <div class="invalid-feedback">
+          Borrow ID not found.
+        </div>
       </Row>
       <Row label="Condition:" id="book-condition">
         <select class="form-select" id="book-condition" bind:value={conditionValue}>

@@ -8,6 +8,7 @@
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
   import Modal from "./components/Modal.svelte";
+  import InvalidLink from "./InvalidLink.svelte";
 
   let logged;
   accType.subscribe((value) => (logged = value));
@@ -15,7 +16,7 @@
 
   export let params;
   const bookID = params.bookID;
-
+  let noData = false
   // Book Details
   let book;
   async function getData() {
@@ -25,6 +26,7 @@
       .eq("book_id", bookID);
     console.table(data[0]);
     book = data[0];
+    if(data.length == 0) noData = true
   }
   onMount(getData);
   // Staff
@@ -155,6 +157,9 @@
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
+  {#if noData}
+    <InvalidLink />
+  {/if}
   <section>
     <!-- * Label  -->
     <TitleLabel text="Book Details" />

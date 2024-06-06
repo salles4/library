@@ -22,4 +22,9 @@
       />
     </div>
   </SectionLabel>
+  <SectionLabel title="Reports" icon="receipt">
+    <div class="row justify-content-center gap-4">
+      <FunctionItem name="Books Data" link="book-report" icon="journals" />
+    </div>
+  </SectionLabel>
 </main>

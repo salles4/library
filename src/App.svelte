@@ -16,6 +16,7 @@
   import InvalidLink from './lib/InvalidLink.svelte';
   import AddAuthor from './lib/staff/AddAuthor.svelte';
   import AddPublisher from './lib/staff/AddPublisher.svelte';
+  import ReportBook from './lib/staff/ReportBook.svelte';
 
 
   let logged;
@@ -61,6 +62,7 @@
     '/add-publisher': AddPublisher,
     '/borrow': Borrow,
     '/return': Return,
+    '/book-report': ReportBook,
     '*': InvalidLink
   }} />
   {:else}

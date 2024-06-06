@@ -76,7 +76,11 @@
       alert(`Successfully Added ${titleValue}!`)
     }
   }
+  //update
 
+  
+
+  // for autocomplete
   async function getAuthors() {
     const { data, error } = await supabase
       .from("author")

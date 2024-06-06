@@ -156,12 +156,12 @@
       </form>
     </div>
   </div>
-  <!-- <div>
+  <div>
     <button class="m-2 btn btn-primary btn-lg" on:click={() => logClient("263690")}
       >Client</button
     >
     <button class="m-2 btn btn-danger btn-lg" on:click={() => logStaff("153827")}>Staff</button>
-  </div> -->
+  </div>
 </main>
 
 <style>
