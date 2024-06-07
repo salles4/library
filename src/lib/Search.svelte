@@ -59,7 +59,7 @@
     searchResults.publisher = [];
     searchResults[searchType] = data;
     searchResults = searchResults;
-    loading = false
+    loading = false;
     console.log(loading, searchResults);
   }
   onMount(checkParam);
@@ -101,10 +101,44 @@
       <i class="bi bi-search"></i>
     </button>
   </div>
+  {#if select && select.value == "books"}
+  <div class="d-flex justify-content-end align-items-center gap-2">
+    <div>
+      Category:
+    </div>
+    <div>
+      <select name="category" class="form-select">
+        <option value="all">All</option>
+        <option value="tech">Technology</option>
+        <option value="all">Educational</option>
+      </select>
+    </div>
+    <div>Sort by:</div>
+    <div>
+      <select name="filter" class="form-select">
+        <option value="">Total</option>
+        <option value="">Available</option>
+        <option value="">Reserved</option>
+        <option value="">Borrowed</option>
+      </select>
+    </div>
+    <div>
+      <select name="order" class="form-select">
+        <option value="">Ascending</option>
+        <option value="">Descending</option>
+      </select>
+    </div>
+  </div>
+  {/if}
+  <hr />
   <div class="row">
     {#if searchResults.books.length > 0}
       {#each Object.entries(searchResults.books) as [i, data]}
-        <BookItem title={data.title} id={data.book_id} author={data.author.name} />
+        <BookItem
+          title={data.title}
+          id={data.book_id}
+          author={data.author.name}
+        />
       {/each}
     {:else if searchResults.author.length > 0}
       {#each Object.entries(searchResults.author) as [i, data]}
@@ -114,17 +148,15 @@
       {#each Object.entries(searchResults.publisher) as [i, data]}
         <PublisherItem id={data.publisher_id} name={data.name} />
       {/each}
-    {:else}
-    {#if !loading}
-    <div class="d-flex justify-content-center">
-      <div class="text-center">
-        <h1><i class="bi bi-patch-question"></i></h1>
-        <h4>No Results</h4>
+    {:else if !loading}
+      <div class="d-flex justify-content-center mt-5">
+        <div class="text-center">
+          <h1><i class="bi bi-patch-question"></i></h1>
+          <h2>No Results</h2>
+        </div>
       </div>
-    </div>
-      {:else}
+    {:else}
       <Loading />
-      {/if}
     {/if}
   </div>
 </main>

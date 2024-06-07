@@ -5,6 +5,9 @@
   import { fade, fly, slide } from "svelte/transition";
   import RowPreview from "../forms/RowPreview.svelte";
   import { supabase } from "../../supabase";
+  import { querystring } from "svelte-spa-router"
+
+    
 
   let today = moment().format("YYYY-MM-DD HH:mm");
 
@@ -14,10 +17,12 @@
   
   const staffID = localStorage.getItem("user_id")
 
+  let borrowID;
   let borrowIDClass = "";
+  const queryParams = new URLSearchParams($querystring);
+  borrowID = queryParams.get("borrow_id") || "";
 
   let preview = false
-  let borrowID;
   let returnID;
   let bookName;
   let bookBarcode;

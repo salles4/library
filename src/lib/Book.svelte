@@ -294,10 +294,12 @@
                         ? `./#/borrow?barcode=${data.barcode}`
                         : data.status == `Reserved`
                         ? `./#/borrow?reserve_id=${data.reservation_id}`
-                        : "text-bg-danger"}
+                        : `./#/return?borrow_id=${data.borrow_id}`}
                       class="btn btn-outline-primary btn-sm"
                       ><small
-                        >Borrow <i class="bi bi-box-arrow-up-right"></i></small
+                        >{data.status == "Borrowed"
+                        ? `Return`
+                        : "Borrow"} <i class="bi bi-box-arrow-up-right"></i></small
                       ></a
                     ></td
                   >

@@ -3,8 +3,8 @@
   document.querySelector("body").setAttribute("data-bs-theme", "dark");
   import { accType } from "../store";
   import { supabase } from "../supabase";
-  import {replace} from 'svelte-spa-router';
-  replace("/")
+  import { replace } from "svelte-spa-router";
+  replace("/");
   /**
    * @param {string} id
    */
@@ -32,48 +32,51 @@
 
   let usernameInput;
   let passwordInput;
-  async function logIn(){
-    const {data, error} = await supabase
-    .from("user_level")
-    .select("account_type, user_id")
-    .eq("username", usernameInput)
-    .eq("password", passwordInput)
-    .single()
+  async function logIn() {
+    const { data, error } = await supabase
+      .from("user_level")
+      .select("account_type, user_id")
+      .eq("username", usernameInput)
+      .eq("password", passwordInput)
+      .single();
 
-    if(error){
+    if (error) {
       console.error(error);
       return;
     }
-    if(data.account_type == "student"){
-      logClient(data.user_id)
-    }else if(data.account_type == "staff"){
-      logStaff(data.user_id)
-    }else{
+    if (data.account_type == "student") {
+      logClient(data.user_id);
+    } else if (data.account_type == "staff") {
+      logStaff(data.user_id);
+    } else {
       console.error(data);
     }
-
   }
+
+  let moreinfo = false;
+  $: moreinfoClass = moreinfo && !log_in ? "moreinfo" : "";
 </script>
 
 <main in:fade={{ duration: 500 }}>
   <!-- CONTAINER -->
-  <div class="wrapper {activeClass} active-popup">
-    <!-- CLOSE BUTTON -->
-    <!-- <span class="icon-close">
-                <ion-icon name="close"></ion-icon>
-            </span> -->
-
+  <div class="wrapper {activeClass} active-popup {moreinfoClass}">
     <!-- LOGIN PANEL -->
     <div class="form-box login">
       <h2>Login</h2>
       <form on:submit|preventDefault={logIn} id="form">
         <div class="input-box">
-          <span class="icon"><ion-icon name="person-circle"></ion-icon></span>
-          <input type="text" bind:value={usernameInput} id="usernameLogin" required autocomplete="off" />
+          <span class="icon"><i class="bi bi-person"></i></span>
+          <input
+            type="text"
+            bind:value={usernameInput}
+            id="usernameLogin"
+            required
+            autocomplete="off"
+          />
           <label for="usernameLogin">Username</label>
         </div>
         <div class="input-box">
-          <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+          <span class="icon"><i class="bi bi-eye"></i></span>
           <input
             type="password"
             id="passwordLogin"
@@ -83,13 +86,6 @@
           />
           <label for="passwordLogin">Password</label>
         </div>
-
-        <!-- <div class="remember-forgot">
-          <label>
-            <input type="checkbox" />Remember Me
-          </label>
-          <a href="./#/">Forgot Password?</a>
-        </div> -->
         <button type="submit" class="bton" id="loginBton" on:click={logIn}
           >Login</button
         >
@@ -103,70 +99,201 @@
           </p>
         </div>
       </form>
+      <!-- <div class="alert alert-danger p-1 text-center">
+          Invalid Credentials!
+        </div> -->
     </div>
-
-    <!-- REGISTER PANEL -->
-    <div class="form-box register">
-      <h2>Registration</h2>
-      <form autocomplete="off">
-        <div class="input-box">
-          <span class="icon"><ion-icon name="person-circle"></ion-icon></span>
-          <input
-            type="text"
-            name="none"
-            id="registerUsername"
-            required
-            autocomplete="off"
-          />
-          <label for="registerUsername">Username</label>
-        </div>
-        <div class="input-box">
-          <span class="icon"><ion-icon name="call"></ion-icon></span>
-          <input type="tel" id="registerNumber" required autocomplete="off" />
-          <label for="registerNumber">Mobile Number</label>
-        </div>
-        <div class="input-box">
-          <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
-          <input
-            type="password"
-            id="registerPassword"
-            required
-            autocomplete="off"
-            name="none"
-          />
-          <label for="registerPassword">Password</label>
-        </div>
-
-        <!-- <div class="remember-forgot">
-                        <label>
-                            <input type="checkbox">Remember Me
-                        </label>
-                        <a href="#">Forgot Password?</a>
-                    </div> -->
-        <button type="submit" class="bton" id="registerBtn">Register</button>
-        <div class="login-register">
-          <p>
-            Already have an account? <a
-              href="./#/"
-              on:click={toggle}
-              class="login-link">Log in</a
+    {#if !moreinfo}
+      <!-- REGISTER PANEL -->
+      <div class="form-box register" in:fade={{duration:500}}>
+        <h2>Registration</h2>
+        <form action="#">
+          <div class="input-box">
+            <span class="icon"><i class="bi bi-person"></i></span>
+            <input
+              type="text"
+              id="registerUsername"
+              required
+              autocomplete="off"
+            />
+            <label for="registerUsername">Username</label>
+          </div>
+          <div class="input-box">
+            <span class="icon" id="showPass2"
+              ><a href="./#/" on:click|preventDefault={() => {}}
+                ><i class="bi bi-eye"></i></a
+              ></span
             >
-          </p>
-        </div>
-      </form>
-    </div>
+            <input
+              type="password"
+              id="registerPass"
+              required
+              autocomplete="off"
+            />
+            <label for="registerPass">Password</label>
+          </div>
+          <div class="input-box">
+            <span class="icon" id="showPass3"
+              ><a href="./#/" on:click|preventDefault={() => {}}
+                ><i class="bi bi-eye"></i></a
+              ></span
+            >
+            <input
+              type="password"
+              id="registerConfirm"
+              required
+              autocomplete="off"
+            />
+            <label for="registerConfirm">Confirm Password</label>
+          </div>
+
+          <button
+            type="submit"
+            class="bton"
+            id="registerBtn"
+            on:click={() => {moreinfo = !moreinfo}}>Next</button
+          >
+          <div class="login-register">
+            <p>
+              Already have an account? <a
+                href="./#/"
+                class="login-link"
+                on:click={toggle}>Login</a
+              >
+            </p>
+          </div>
+        </form>
+      </div>
+      <!-- More Info PANEL -->
+    {:else}
+      <div class="form-box register d-flex flex-column justify-content-center text-center" style="height" in:fade={{duration:500}}>
+        <h2>Register</h2>
+        <form
+          action="#"
+          id="form"
+          autocomplete="off"
+          method="post"
+          class=" row justify-content-center"
+        >
+          <div class="col-12 col-sm-6">
+            <div class="input-box">
+              <span class="icon"><ion-icon name="id-card"></ion-icon></span>
+              <input
+                type="text"
+                id="sID"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="sID">Student ID</label>
+            </div>
+            <div class="input-box">
+              <span class="icon"
+                ><ion-icon name="person-circle"></ion-icon></span
+              >
+              <input
+                type="text"
+                id="fname"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="fname">First Name</label>
+            </div>
+            <div class="input-box">
+              <span class="icon"
+                ><ion-icon name="person-circle"></ion-icon></span
+              >
+              <input
+                type="text"
+                id="lname"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="lname">Last Name</label>
+            </div>
+            </div>
+          <div class="col-12 col-sm-6">
+            <div class="input-box">
+              <span class="icon"><ion-icon name="call"></ion-icon></span>
+              <input
+                type="tel"
+                id="contact"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="contact">Contact</label>
+            </div>
+          
+            <div class="input-box">
+              <span class="icon"><ion-icon name="location"></ion-icon></span>
+              <input
+                type="text"
+                id="address"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="address">Address</label>
+            </div>
+            <div class="input-box">
+              <span class="icon"><i class="bi bi-envelope"></i></span>
+              <input
+                type="text"
+                id="address"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="address">Email</label>
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="bton w-50"
+            name="hidden"
+            id="Proceed"
+            on:click={() => {}}>Proceed</button
+          >
+          </form>
+        <a href="./#/" class="mt-2" on:click={() => moreinfo = !moreinfo}>Back</a>
+        <!-- <div class="d-flex justify-content-center">
+          <div class="alert alert-danger w-50 text-center p-2">
+            Invalid Input
+          </div>
+        </div> -->
+      </div>
+    {/if}
   </div>
-  <div>
-    <button class="m-2 btn btn-primary btn-lg" on:click={() => logClient("263690")}
-      >Client</button
+  <div class="d-none">
+    <button
+      class="m-2 btn btn-primary btn-lg"
+      on:click={() => logClient("263690")}>Client</button
     >
-    <button class="m-2 btn btn-danger btn-lg" on:click={() => logStaff("153827")}>Staff</button>
+    <button
+      class="m-2 btn btn-danger btn-lg"
+      on:click={() => logStaff("153827")}>Staff</button
+    >
   </div>
 </main>
 
 <style>
+  .moreinfo {
+    min-height: auto !important;
+    width: 700px !important;
+  }
+  @media screen and (max-width:576px){
+    .moreinfo{
+      height:800px !important;
+      width: 90vw !important;
+    }
+  }
   :root {
-    --main-color: #0d6efd;
+    --group-color: rgb(0, 21, 78);
+    --bs-color: #0d6efd;
+    --main-color: var(--group-color);
   }
 
   main {
@@ -175,7 +302,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url("bgDubu.jpg") no-repeat;
+    background: url("./login-bg.jpg") no-repeat;
     background-size: cover;
     background-position: center;
     background-position-y: 5%;
@@ -184,7 +311,7 @@
   .wrapper {
     position: relative;
     width: 400px;
-    height: 440px;
+    height: 460px;
     background: transparent;
     border: 2px solid rgba(255, 255, 255, 5);
     border-radius: 20px;
@@ -198,7 +325,7 @@
     transform: scale(1);
     transition:
       transform 0.5s ease,
-      height 0.2s ease;
+      height 0.6s ease;
   }
 
   .wrapper.active {
@@ -211,29 +338,29 @@
   }
 
   .wrapper .form-box.login {
-    transition: transform 0.18s ease;
+    transition: transform 0.5s ease;
     transform: translateX(0);
   }
 
   .wrapper .form-box.register {
     position: absolute;
     transition: none;
-    transform: translateX(400px);
+    transform: translateX(900px);
   }
 
   .wrapper.active .form-box.login {
     transition: none;
-    transform: translateX(-400px);
+    transform: translateX(-900px);
   }
 
   .wrapper .form-box.register {
     position: absolute;
     transition: none;
-    transform: translateX(400px);
+    transform: translateX(900px);
   }
 
   .wrapper.active .form-box.register {
-    transition: transform 0.18s ease;
+    transition: transform 0.5s ease;
     transform: translateX(0);
   }
 
@@ -285,31 +412,7 @@
     right: 8px;
     font-size: 1.2em;
     color: white;
-    margin-top: 17px;
-  }
-
-  .remember-forgot {
-    font-size: 1em;
-    color: white;
-    font-weight: 500;
-    margin: -15px 0 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .remember-forgot label input {
-    accent-color: var(--main-color);
-    margin-right: 3px;
-  }
-
-  .remember-forgot a {
-    color: white;
-    text-decoration: none;
-  }
-
-  .remember-forgot a:hover {
-    text-decoration: underline;
+    margin-top: 12px;
   }
 
   .bton {
@@ -333,13 +436,13 @@
     margin: 25px 0 10px;
   }
 
-  .login-register p a {
+  a {
     color: white;
     text-decoration: none;
     font-weight: 600;
   }
 
-  .login-register p a:hover {
+  a:hover {
     text-decoration: underline;
   }
 </style>

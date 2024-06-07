@@ -1,13 +1,14 @@
 <script>
+  import { onMount } from "svelte";
   import { accType, user_id } from "../../store";
   import { supabase } from "../../supabase";
   
   let logged;
-  let userID;
+  let userID = localStorage.getItem("user_id");
   accType.subscribe((value) => logged = value)
-  user_id.subscribe(value => userID = value)
 
-  let lname;
+getName()
+  let lname = "";
   async function getName(){
     const {data, error} = await supabase
     .from("account_details")
@@ -15,9 +16,9 @@
     .eq("user_id", userID)
     .single()
     if (error) console.error(error);
+    console.log(userID, data);
     lname = data.lname;
   }
-  getName()
   let classTheme = localStorage.getItem("theme") || "light"
   function toggle(){
     classTheme = classTheme == "light" ? "dark" : "light";
@@ -41,7 +42,7 @@
     <!-- Left Content (Title) -->
     <a class="navbar-brand m-0 px-2" href="./#/">
       <i class="bi bi-book"></i> 
-      Library System
+      Zenodotus
       <small class="fs-6 text-white-50 ms-2 d-sm-inline d-none"> 
         CTADVDBL Project
       </small>
@@ -59,11 +60,14 @@
     <div class="collapse navbar-collapse" id="navbarContent">
       <!-- Align links to right  -->
       <div class="navbar-nav ms-auto text-center">
-        <a class="nav-link" href="./#/search">Books</a>
-        <a class="nav-link" href="./#/search/author">Authors</a>
-        <a class="nav-link" href="./#/search/publisher">Publishers</a>
+        <a class="nav-link" href="./#/"><i class="bi bi-house-door"></i> Home</a>
+        <a class="nav-link" href="./#/search"><i class="bi bi-journal"></i> Books</a>
+        <a class="nav-link" href="./#/search/author"><i class="bi bi-person"></i> Authors</a>
+        <a class="nav-link" href="./#/search/publisher"><i class="bi bi-building"></i> Publishers</a>
         {#if logged == "staff"}
-        <a class="nav-link" href="./#/add-book">Add book</a>
+        
+        <a class="nav-link" href="./#/borrow"><i class="bi bi-journal-arrow-up"></i> Borrow</a>
+        <a class="nav-link" href="./#/return"><i class="bi bi-journal-arrow-down"></i> Return</a>
         {/if}
         <li class="nav-item dropdown">
           <a
