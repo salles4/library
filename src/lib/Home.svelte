@@ -22,7 +22,7 @@
   let bookCatch;
   let authorCatch;
   let publisherCatch;
-  let inventoryCatch
+  let inventoryCatch;
   async function getBooks() {
     const { data: bookData, error: bookError } =
       await supabase.rpc("get_books");
@@ -41,9 +41,13 @@
     publishers = publisherData;
     publisherCatch = publisherError ? publisherError : "";
   }
-  async function getInventory(){
-    const { data:inventoryData, error:inventoryError} = await supabase.rpc("get_inventory",{loggedid: stud_id})
+  async function getInventory() {
+    const { data: inventoryData, error: inventoryError } = await supabase.rpc(
+      "get_inventory",
+      { loggedid: stud_id }
+    );
     inventory = inventoryData;
+    console.log(inventory);
     inventoryCatch = inventoryError ? inventoryError : "";
   }
   getBooks();
@@ -56,24 +60,24 @@
   <Carousel />
 
   <!--* Books Section -->
-  <SectionLabel title="Account Inventory" icon="backpack2">
-    {#if inventory}
+  {#if inventory && inventory.length != 0}
+    <SectionLabel title="Account Inventory" icon="backpack2">
       <div class="row justify-content-center justify-content-md-start">
-        {#each Object.entries(inventory) as [i, data]} 
-        <BookLabelItem
-          id={data.id}
-          title={data.title}
-          label={data.status == "Borrowed" ? `Due: ${moment(data.due_date).format("MM-DD-YYYY")}` : "Reserved" }
-          color={data.status == "Borrowed" ? "danger" : "secondary"}
-        />
+        {#each Object.entries(inventory) as [i, data]}
+          <BookLabelItem
+            id={data.book_id}
+            title={data.title}
+            label={data.status == "Borrowed"
+              ? `Due: ${moment(data.due_date).format("MM-DD-YYYY")}`
+              : "Reserved"}
+            color={data.status == "Borrowed" ? "danger" : "secondary"}
+          />
         {/each}
       </div>
-    {:else if inventoryCatch}
-      <Error message={inventoryCatch} />
-    {:else}
-      <Loading />
-    {/if}
-  </SectionLabel>
+    </SectionLabel>
+  {:else if inventoryCatch}
+    <Error message={inventoryCatch} />
+  {/if}
 
   <SectionLabel title="Books" icon="journal" link="search/">
     {#if books}
