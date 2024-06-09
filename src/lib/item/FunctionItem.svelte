@@ -5,7 +5,7 @@
   </script>
   
   <div
-      class="card col-md-2 col-5 border-1 py-2">
+      class="card col-lg-2 col-5 border-1 py-2">
     <div class="d-flex justify-content-center" style="font-size: 3em;">
         <i class="bi bi-{icon}"></i>
     </div>

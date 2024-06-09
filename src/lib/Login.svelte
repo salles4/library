@@ -1,5 +1,5 @@
 <script>
-  import { fade } from "svelte/transition";
+  import { fade, fly, slide } from "svelte/transition";
   document.querySelector("body").setAttribute("data-bs-theme", "dark");
   import { accType } from "../store";
   import { supabase } from "../supabase";
@@ -38,10 +38,17 @@
       .select("account_type, user_id")
       .eq("username", usernameInput)
       .eq("password", passwordInput)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error(error);
+      return;
+    }
+    if (!data && (await userExists(usernameInput))) {
+      loginError = "Wrong password.";
+      return;
+    } else if (!data) {
+      loginError = "User does not exist.";
       return;
     }
     if (data.account_type == "student") {
@@ -55,6 +62,55 @@
 
   let moreinfo = false;
   $: moreinfoClass = moreinfo && !log_in ? "moreinfo" : "";
+
+  /**
+   * @param {string} usernameToCheck
+   */
+  async function userExists(usernameToCheck) {
+    const { data, error } = await supabase
+      .from("user_level")
+      .select()
+      .eq("username", usernameToCheck);
+
+    if (error) console.error(error);
+    return data.length > 0;
+  }
+  let loginError;
+  let regError;
+  let moreInfoError;
+  //Register
+  let regUserValue,
+    regPassValue,
+    confirmPassValue,
+    studIDValue,
+    fnameValue,
+    lnameValue,
+    contactValue,
+    addressValue,
+    emailValue;
+
+  async function validateRegister() {
+    if (await userExists(regUserValue)) {
+      regError = "Username already exists.";
+      return;
+    } else if (regPassValue != confirmPassValue) {
+      regError = "Password does not match.";
+      return;
+    }
+    moreinfo = !moreinfo;
+  }
+  async function validateInfos() {
+    const { data, error } = await supabase
+      .from("user_level")
+      .select()
+      .eq("username", studIDValue);
+    
+    if (data.length == 0) {
+      moreInfoError = "Student ID already exists"
+      return
+    }
+    
+  }
 </script>
 
 <main in:fade={{ duration: 500 }}>
@@ -78,17 +134,23 @@
         <div class="input-box">
           <span class="icon"><i class="bi bi-eye"></i></span>
           <input
+            minlength="6"
+            maxlength="12"
             type="password"
             id="passwordLogin"
             required
             autocomplete="off"
+            on:keyup={() => (loginError = "")}
             bind:value={passwordInput}
           />
           <label for="passwordLogin">Password</label>
         </div>
-        <button type="submit" class="bton" id="loginBton" on:click={logIn}
-          >Login</button
-        >
+        {#if loginError}
+          <div class="alert alert-danger p-1 text-center">
+            {loginError}
+          </div>
+        {/if}
+        <button type="submit" class="bton" id="loginBton">Login</button>
         <div class="login-register">
           <p>
             Don't have an account? <a
@@ -99,15 +161,18 @@
           </p>
         </div>
       </form>
-      <!-- <div class="alert alert-danger p-1 text-center">
-          Invalid Credentials!
-        </div> -->
     </div>
     {#if !moreinfo}
       <!-- REGISTER PANEL -->
-      <div class="form-box register" in:fade={{duration:500}}>
+      <div class="form-box register" transition:fly={{ duration: 600, y: 500 }}>
         <h2>Registration</h2>
-        <form action="#">
+
+        {#if regError}
+          <div class="alert alert-danger p-1 text-center">
+            {regError}
+          </div>
+        {/if}
+        <form on:submit|preventDefault={validateRegister}>
           <div class="input-box">
             <span class="icon"><i class="bi bi-person"></i></span>
             <input
@@ -115,6 +180,8 @@
               id="registerUsername"
               required
               autocomplete="off"
+              on:keyup={() => (regError = "")}
+              bind:value={regUserValue}
             />
             <label for="registerUsername">Username</label>
           </div>
@@ -129,6 +196,9 @@
               id="registerPass"
               required
               autocomplete="off"
+              minlength="6"
+              on:keyup={() => (regError = "")}
+              bind:value={regPassValue}
             />
             <label for="registerPass">Password</label>
           </div>
@@ -143,16 +213,14 @@
               id="registerConfirm"
               required
               autocomplete="off"
+              minlength="6"
+              on:keyup={() => (regError = "")}
+              bind:value={confirmPassValue}
             />
             <label for="registerConfirm">Confirm Password</label>
           </div>
 
-          <button
-            type="submit"
-            class="bton"
-            id="registerBtn"
-            on:click={() => {moreinfo = !moreinfo}}>Next</button
-          >
+          <button type="submit" class="bton" id="registerBtn">Next</button>
           <div class="login-register">
             <p>
               Already have an account? <a
@@ -166,31 +234,40 @@
       </div>
       <!-- More Info PANEL -->
     {:else}
-      <div class="form-box register d-flex flex-column justify-content-center text-center" style="height" in:fade={{duration:500}}>
+      <div
+        class="form-box register d-flex flex-column justify-content-center text-center"
+        style="height"
+        transition:fly={{ duration: 600, y: 500 }}
+      >
         <h2>Register</h2>
         <form
-          action="#"
-          id="form"
-          autocomplete="off"
-          method="post"
-          class=" row justify-content-center"
+          on:submit|preventDefault={validateInfos}
+          class="row justify-content-center"
         >
+        {#if moreInfoError} 
+        <div class="d-flex justify-content-center">
+          <div class="alert alert-danger w-50 text-center p-1 m-0">
+            {moreInfoError}
+          </div>
+        </div>
+        {/if}
           <div class="col-12 col-sm-6">
             <div class="input-box">
-              <span class="icon"><ion-icon name="id-card"></ion-icon></span>
+              <span class="icon"><i class="bi bi-person-bounding-box"></i></span
+              >
               <input
                 type="text"
                 id="sID"
                 name="hidden"
                 required
+                minlength="6"
+                maxlength="6"
                 autocomplete="off"
               />
               <label for="sID">Student ID</label>
             </div>
             <div class="input-box">
-              <span class="icon"
-                ><ion-icon name="person-circle"></ion-icon></span
-              >
+              <span class="icon"><i class="bi bi-person-vcard-fill"></i></span>
               <input
                 type="text"
                 id="fname"
@@ -201,9 +278,7 @@
               <label for="fname">First Name</label>
             </div>
             <div class="input-box">
-              <span class="icon"
-                ><ion-icon name="person-circle"></ion-icon></span
-              >
+              <span class="icon"><i class="bi bi-person-vcard-fill"></i></span>
               <input
                 type="text"
                 id="lname"
@@ -213,10 +288,21 @@
               />
               <label for="lname">Last Name</label>
             </div>
+            <div class="input-box">
+              <span class="icon"><i class="bi bi-envelope"></i></span>
+              <input
+                type="email"
+                id="email"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="email">Email</label>
             </div>
+          </div>
           <div class="col-12 col-sm-6">
             <div class="input-box">
-              <span class="icon"><ion-icon name="call"></ion-icon></span>
+              <span class="icon"><i class="bi bi-telephone-fill"></i></span>
               <input
                 type="tel"
                 id="contact"
@@ -226,9 +312,9 @@
               />
               <label for="contact">Contact</label>
             </div>
-          
+
             <div class="input-box">
-              <span class="icon"><ion-icon name="location"></ion-icon></span>
+              <span class="icon"><i class="bi bi-geo-alt-fill"></i></span>
               <input
                 type="text"
                 id="address"
@@ -241,13 +327,24 @@
             <div class="input-box">
               <span class="icon"><i class="bi bi-envelope"></i></span>
               <input
-                type="text"
-                id="address"
+                type="number"
+                id="yearLevel"
                 name="hidden"
                 required
                 autocomplete="off"
               />
-              <label for="address">Email</label>
+              <label for="yearLevel">Year Level</label>
+            </div>
+            <div class="input-box">
+              <span class="icon"><i class="bi bi-envelope"></i></span>
+              <input
+                type="text"
+                id="course"
+                name="hidden"
+                required
+                autocomplete="off"
+              />
+              <label for="course">Course</label>
             </div>
           </div>
           <button
@@ -257,13 +354,10 @@
             id="Proceed"
             on:click={() => {}}>Proceed</button
           >
-          </form>
-        <a href="./#/" class="mt-2" on:click={() => moreinfo = !moreinfo}>Back</a>
-        <!-- <div class="d-flex justify-content-center">
-          <div class="alert alert-danger w-50 text-center p-2">
-            Invalid Input
-          </div>
-        </div> -->
+        </form>
+        <a href="./#/" class="mt-2" on:click={() => (moreinfo = !moreinfo)}
+          >Back</a
+        >
       </div>
     {/if}
   </div>
@@ -280,13 +374,19 @@
 </main>
 
 <style>
+  .alert-danger {
+    font-weight: 700;
+    --bs-alert-color: #ffacac;
+    --bs-alert-bg: #491414;
+    --bs-alert-border-color: #b30000;
+  }
   .moreinfo {
     min-height: auto !important;
     width: 700px !important;
   }
-  @media screen and (max-width:576px){
-    .moreinfo{
-      height:800px !important;
+  @media screen and (max-width: 576px) {
+    .moreinfo {
+      height: 800px !important;
       width: 90vw !important;
     }
   }
@@ -325,7 +425,8 @@
     transform: scale(1);
     transition:
       transform 0.5s ease,
-      height 0.6s ease;
+      height 0.6s ease,
+      width 0.6s ease !important;
   }
 
   .wrapper.active {
@@ -392,7 +493,10 @@
 
   .input-box input:focus ~ label,
   .input-box input:valid ~ label {
-    top: -5px;
+    top: 5px;
+  }
+  .input-box input:empty ~ label {
+    bottom: 5px !important;
   }
 
   .input-box input {

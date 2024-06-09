@@ -3,7 +3,7 @@
   import TitleLabel from "./components/TitleLabel.svelte";
   import { supabase } from "../supabase";
   import { onMount } from "svelte";
-  import { fade } from "svelte/transition";
+  import { fade, fly, slide } from "svelte/transition";
   import { accType } from "../store";
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
@@ -19,6 +19,7 @@
   let noData = false
   // Book Details
   let book;
+  let categories;
   async function getData() {
     const { data, error } = await supabase
       .from("books")
@@ -27,15 +28,27 @@
     console.table(data[0]);
     book = data[0];
     if(data.length == 0) noData = true
+
+    const {data: categoriesData, error:categoriesError} = await supabase
+    .from("books_category")
+    .select("category(category_id, name)")
+    .eq("book_id", bookID)
+    console.log("category", categoriesData);
+    if(categoriesError) console.error(categoriesError);
+    if (categoriesData.length == 0) {categories = {0:{name:"Uncategorized", id:0}}}
+    else{
+      categories = categoriesData
+    }
+
   }
   onMount(getData);
   // Staff
   let barcodeValue;
-  async function getHoldings() {
+  async function getHoldingsData() {
     const {data, error} = await supabase.rpc("get_holdings", {bookid: bookID})
     if(error){console.error(error)}
     console.table(data);
-    return data;
+    holdings = data
   }
   async function addCopy(){
     const {data} = await supabase
@@ -49,7 +62,14 @@
     const {error} = await supabase
     .from("library_holdings")
     .insert({book_id:bookID, barcode:barcodeValue})
-    getHoldings()
+  }
+  let holdings;
+  if(logged == "staff"){
+    getHoldingsData();
+    supabase
+    .channel('holdings')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'library_holdings' }, ()=>{getHoldingsData()})
+    .subscribe()
   }
   // Client
   let reserveID
@@ -181,7 +201,7 @@
           <small class="text-secondary">ISBN: {book.isbn}</small>
           {#if logged == "client"}
             {#if borrowID}
-              <button class="btn btn-secondary w-75">Borrowed (#{borrowID})</button>
+              <button class="btn btn-secondary w-75" disabled>Borrowed (#{borrowID})</button>
             {:else if reserveID}
             <button
               class="btn {reserveButtonClass} w-75"
@@ -234,7 +254,14 @@
           </p>
           <p>
             <b>Category:</b>
-              {book.category.name}
+            {#if categories}
+            {#each Object.entries(categories) as [i, category]}
+              <a href="./#/">
+                {category.category.name}
+              </a>
+              &nbsp;
+            {/each}
+            {/if}
           </p>
           <p>
             <b>Shelf No.: </b>
@@ -253,11 +280,24 @@
   {/if} -->
   {#if logged == "staff"}
     <SectionLabel title="Status" icon="journal">
-      {#await getHoldings() then holdings}
+      <div class="row justify-content-center align-items-center my-3">
+        <label for="copy" class="form=control col-auto">Add Copy:</label>
+        <div class="col-4">
+          <input
+            bind:value={barcodeValue}
+            type="text"
+            class="form-control"
+            id="copy"
+            placeholder="Barcode Number"
+          />
+        </div>
+        <button on:click={addCopy} class="btn btn-primary col-2">Add</button>
+      </div>
+      {#if holdings}
         {#if holdings.length <= 0}
           <div class="text-center my-5">
             <h3>No Library Holdings.</h3>
-            <small>Add a copy below</small>
+            <small>Add a copy above</small>
           </div>
         {:else}
           <table
@@ -308,20 +348,8 @@
             </tbody>
           </table>
         {/if}
-      {/await}
-      <div class="row justify-content-center align-items-center">
-        <label for="copy" class="form=control col-auto">Add Copy:</label>
-        <div class="col-4">
-          <input
-            bind:value={barcodeValue}
-            type="text"
-            class="form-control"
-            id="copy"
-            placeholder="Barcode Number"
-          />
-        </div>
-        <button on:click={addCopy} class="btn btn-primary col-2">Add</button>
-      </div>
+      {/if}
+      
     </SectionLabel>
   {/if}
   <div class="my-5"></div>

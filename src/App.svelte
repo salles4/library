@@ -17,6 +17,9 @@
   import AddAuthor from "./lib/staff/AddAuthor.svelte";
   import AddPublisher from "./lib/staff/AddPublisher.svelte";
   import ReportBook from "./lib/staff/ReportBook.svelte";
+  import ReportPayment from "./lib/staff/ReportPayment.svelte";
+  import ReportStudents from "./lib/staff/ReportStudents.svelte";
+  import Reports from "./lib/staff/Reports.svelte";
 
   let logged;
 
@@ -57,6 +60,9 @@
       "/borrow": Borrow,
       "/return": Return,
       "/book-report": ReportBook,
+      "/payment-report": ReportPayment,
+      "/student-report": ReportStudents,
+      "/reports": Reports,
       "*": InvalidLink,
     }}
   />

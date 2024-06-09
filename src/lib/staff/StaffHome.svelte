@@ -26,9 +26,9 @@
   <SectionLabel title="Reports" icon="receipt">
     <div class="row justify-content-center gap-5 mb-5">
       <FunctionItem name="Books Report" link="book-report" icon="journals" />
-      <FunctionItem name="Students Report" link="" icon="person-fill" />
-      <FunctionItem name="Payments Report" link="" icon="cash" />
-      <FunctionItem name="Transactions Report" link="" icon="arrow-left-right" />
+      <FunctionItem name="Students Report" link="student-report" icon="person-fill" />
+      <FunctionItem name="Payments Report" link="payment-report" icon="cash" />
+      <FunctionItem name="Transactions Report" link="reports" icon="arrow-left-right" />
     </div>
   </SectionLabel>
 </main>

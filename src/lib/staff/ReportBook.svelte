@@ -4,14 +4,14 @@
   import { supabase } from "../../supabase";
 
   async function getReport() {
-    // const { data, error } = await supabase.rpc("getbooksreport");
-    // if(error){
-    //   console.error(error);
-    //   return;
-    // }
-    // console.table(data);
-    // return data;
-    return { 1: {}, 2: {} };
+    const { data, error } = await supabase.rpc("getbooksreport");
+    if(error){
+      console.error(error);
+      return;
+    }
+    console.table(data);
+    return data;
+    
   }
 </script>
 
@@ -19,7 +19,7 @@
   <TitleLabel text="Books Report" />
   <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
     <div>Filters:</div>
-    <div>
+    <div> 
       <select name="filter" class="form-select">
         <option value="">Total</option>
         <option value="">Available</option>
