@@ -20,6 +20,7 @@
   import ReportPayment from "./lib/staff/ReportPayment.svelte";
   import ReportStudents from "./lib/staff/ReportStudents.svelte";
   import Reports from "./lib/staff/Reports.svelte";
+  import UpdateBook from "./lib/staff/UpdateBook.svelte";
 
   let logged;
 
@@ -63,6 +64,7 @@
       "/payment-report": ReportPayment,
       "/student-report": ReportStudents,
       "/reports": Reports,
+      "/update-book": UpdateBook,
       "*": InvalidLink,
     }}
   />

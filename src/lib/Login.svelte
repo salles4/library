@@ -22,6 +22,10 @@
     localStorage.setItem("user_id", id);
   }
 
+  let disableLogIn = false;
+  let disableNext = false;
+  let disableRegister = false;
+
   let log_in = true;
   let activeClass = "";
   $: activeClass = log_in ? "" : "active";
@@ -33,13 +37,15 @@
   let usernameInput;
   let passwordInput;
   async function logIn() {
+    console.log("CLicked");
+    disableLogIn = true;
     const { data, error } = await supabase
       .from("user_level")
       .select("account_type, user_id")
       .eq("username", usernameInput)
       .eq("password", passwordInput)
       .maybeSingle();
-
+    disableLogIn = false;
     if (error) {
       console.error(error);
       return;
@@ -90,7 +96,10 @@
     emailValue;
 
   async function validateRegister() {
-    if (await userExists(regUserValue)) {
+    disableNext = true;
+    let userValidate = await userExists(regUserValue);
+    disableNext = false;
+    if (userValidate) {
       regError = "Username already exists.";
       return;
     } else if (regPassValue != confirmPassValue) {
@@ -104,16 +113,26 @@
       .from("user_level")
       .select()
       .eq("username", studIDValue);
-    
+
     if (data.length == 0) {
-      moreInfoError = "Student ID already exists"
-      return
+      moreInfoError = "Student ID already exists";
+      return;
     }
-    
   }
+  let showLoginPass = false;
+  let showRegPass = false;
+  let showConfirmPass = false;
+  function onInput(event) {
+	return event.target.value
+}
 </script>
 
-<main in:fade={{ duration: 500 }}>
+<main
+  in:fade={{ duration: 500 }}
+  style="background: url('./login-bg.jpg') no-repeat; background-size: cover;
+    background-position: center;
+    background-position-y: 5%;"
+>
   <!-- CONTAINER -->
   <div class="wrapper {activeClass} active-popup {moreinfoClass}">
     <!-- LOGIN PANEL -->
@@ -125,6 +144,7 @@
           <input
             type="text"
             bind:value={usernameInput}
+            on:keyup={() => (loginError = "")}
             id="usernameLogin"
             required
             autocomplete="off"
@@ -132,16 +152,19 @@
           <label for="usernameLogin">Username</label>
         </div>
         <div class="input-box">
-          <span class="icon"><i class="bi bi-eye"></i></span>
+          <a href="./#/" on:click|preventDefault={()=> showLoginPass = !showLoginPass}>
+            <span class="icon"><i class="bi bi-{showLoginPass ? 'eye-slash' : 'eye'}"></i></span>
+          </a>
           <input
             minlength="6"
             maxlength="12"
-            type="password"
+            type={showLoginPass ? "text" : "password"}
             id="passwordLogin"
             required
             autocomplete="off"
-            on:keyup={() => (loginError = "")}
-            bind:value={passwordInput}
+            
+            on:input={(event) => {loginError = ""; passwordInput = onInput(event)}}
+            
           />
           <label for="passwordLogin">Password</label>
         </div>
@@ -150,7 +173,17 @@
             {loginError}
           </div>
         {/if}
-        <button type="submit" class="bton" id="loginBton">Login</button>
+        <button
+          disabled={disableLogIn}
+          type="submit"
+          class="bton"
+          id="loginBton">
+          {#if disableLogIn}
+          <div class="spinner-border spinner-border-sm" role="status"></div>
+          {:else}
+          Log In
+          {/if}</button
+        >
         <div class="login-register">
           <p>
             Don't have an account? <a
@@ -187,40 +220,43 @@
           </div>
           <div class="input-box">
             <span class="icon" id="showPass2"
-              ><a href="./#/" on:click|preventDefault={() => {}}
-                ><i class="bi bi-eye"></i></a
+              ><a href="./#/" on:click|preventDefault={() => showRegPass = !showRegPass}
+                ><i class="bi bi-{showRegPass ? "eye-slash" : "eye"}"></i></a
               ></span
             >
             <input
-              type="password"
-              id="registerPass"
+              minlength="6"
+              type={showRegPass ? "text" : "password"}
+              id="registerUsername"
               required
               autocomplete="off"
-              minlength="6"
-              on:keyup={() => (regError = "")}
-              bind:value={regPassValue}
+              maxlength="16"
+              on:keyup={(event) => {regError = ""; regPassValue = onInput(event)}}
             />
             <label for="registerPass">Password</label>
           </div>
           <div class="input-box">
             <span class="icon" id="showPass3"
-              ><a href="./#/" on:click|preventDefault={() => {}}
-                ><i class="bi bi-eye"></i></a
+              ><a href="./#/" on:click|preventDefault={() => showConfirmPass = !showConfirmPass}
+                ><i class="bi bi-{showConfirmPass ? "eye-slash" : "eye"}"></i></a
               ></span
             >
             <input
-              type="password"
+              type={showConfirmPass ? "text" : "password"}
               id="registerConfirm"
               required
               autocomplete="off"
-              minlength="6"
-              on:keyup={() => (regError = "")}
-              bind:value={confirmPassValue}
+              on:keyup={(event) => {regError = ""; confirmPassValue = onInput(event)}}
             />
             <label for="registerConfirm">Confirm Password</label>
           </div>
 
-          <button type="submit" class="bton" id="registerBtn">Next</button>
+          <button
+            disabled={disableNext}
+            type="submit"
+            class="bton"
+            id="registerBtn">Next</button
+          >
           <div class="login-register">
             <p>
               Already have an account? <a
@@ -244,13 +280,13 @@
           on:submit|preventDefault={validateInfos}
           class="row justify-content-center"
         >
-        {#if moreInfoError} 
-        <div class="d-flex justify-content-center">
-          <div class="alert alert-danger w-50 text-center p-1 m-0">
-            {moreInfoError}
-          </div>
-        </div>
-        {/if}
+          {#if moreInfoError}
+            <div class="d-flex justify-content-center">
+              <div class="alert alert-danger w-50 text-center p-1 m-0">
+                {moreInfoError}
+              </div>
+            </div>
+          {/if}
           <div class="col-12 col-sm-6">
             <div class="input-box">
               <span class="icon"><i class="bi bi-person-bounding-box"></i></span
@@ -307,6 +343,8 @@
                 type="tel"
                 id="contact"
                 name="hidden"
+                minlength="11"
+                maxlength="11"
                 required
                 autocomplete="off"
               />
@@ -325,18 +363,20 @@
               <label for="address">Address</label>
             </div>
             <div class="input-box">
-              <span class="icon"><i class="bi bi-envelope"></i></span>
+              <span class="icon"><i class="bi bi-calendar"></i></span>
               <input
                 type="number"
                 id="yearLevel"
                 name="hidden"
+                max="4"
+                min="1"
                 required
                 autocomplete="off"
               />
               <label for="yearLevel">Year Level</label>
             </div>
             <div class="input-box">
-              <span class="icon"><i class="bi bi-envelope"></i></span>
+              <span class="icon"><i class="bi bi-mortarboard-fill"></i></span>
               <input
                 type="text"
                 id="course"
@@ -352,6 +392,7 @@
             class="bton w-50"
             name="hidden"
             id="Proceed"
+            disabled={disableRegister}
             on:click={() => {}}>Proceed</button
           >
         </form>
@@ -383,6 +424,7 @@
   .moreinfo {
     min-height: auto !important;
     width: 700px !important;
+    height: 580px !important;
   }
   @media screen and (max-width: 576px) {
     .moreinfo {
@@ -402,10 +444,6 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url("./login-bg.jpg") no-repeat;
-    background-size: cover;
-    background-position: center;
-    background-position-y: 5%;
   }
 
   .wrapper {

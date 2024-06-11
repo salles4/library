@@ -55,14 +55,14 @@
           <h1 class="mb-2 pb-2">{author.name}</h1>
           <p class="">
             {#if author.bio == null}
-            <span class="text-secondary">No Description</span>
+            <span class="text-secondary">No Bio</span>
             {:else}
             {author.bio}
             {/if}
           </p>
           <p>
             <b>Website:</b>
-            <a href="mailto:{author.email}">{author.email}</a>
+            <a href="{author.link}">{author.link}</a>
           </p>
         </div>
       {:else}

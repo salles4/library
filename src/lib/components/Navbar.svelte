@@ -36,14 +36,14 @@ getName()
 </script>
 <!-- svelte-ignore a11y-invalid-attribute -->
 <!-- Blue Bar -->
-<nav class="navbar navbar-expand-lg bg-primary bg-gradient shadow">
+<nav class="navbar navbar-expand-lg bg-primary bg-gradient shadow d-print-none">
   <!-- Adds margin -->
   <div class="container px-4 fw-semibold">
     <!-- Left Content (Title) -->
     <a class="navbar-brand m-0 px-2" href="./#/">
       <i class="bi bi-book"></i> 
       Zenodotus
-      <small class="fs-6 text-white-50 ms-2 d-sm-inline d-none"> 
+      <small class="fs-6 text-white-50 ms-2 d-xl-inline d-none"> 
         CTADVDBL Project
       </small>
     </a>

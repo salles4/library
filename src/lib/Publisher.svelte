@@ -53,16 +53,16 @@
       <div class="container">
         <h1 class="mb-2 pb-2">{publisher.name}</h1>
         <p class="">
-          {#if publisher.bio == null}
-            <span class="text-secondary">No Description</span>
+          {#if publisher.description == null}
+            <span>{publisher.description}</span>
             {:else}
-              {publisher.bio}
+              {publisher.description}
             {/if}
         </p>
         <p>
           <b>Website:</b>
-          <a href="https://{publisher.email}" id="publisher-website"
-            >{publisher.email}</a
+          <a href="https://{publisher.link}" id="publisher-website"
+            >{publisher.link}</a
           >
         </p>
       </div>

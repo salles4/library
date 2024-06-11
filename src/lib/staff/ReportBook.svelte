@@ -16,8 +16,8 @@
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
-  <TitleLabel text="Books Report" />
-  <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+  <TitleLabel text="Books Report" print={true}/>
+  <div class="d-flex justify-content-end align-items-center gap-2 mb-3 d-print-none">
     <div>Filters:</div>
     <div> 
       <select name="filter" class="form-select">
@@ -45,13 +45,13 @@
       >
     </form>
   </div>
-  <div class="table-responsive">
+  <div class="">
     <table
       class="table table-bordered table-striped table-hover text-center align-middle"
     >
       <thead>
         <tr class="sticky-top">
-          <th class="py-3 col-2 d-none d-sm-table-cell">ISBN</th>
+          <th class="py-3 col-2 d-none d-md-table-cell d-print-none">ISBN</th>
           <th class="py-3 col-5">Book Title</th>
           <th class="py-3 col-1 text-bg-success">Available</th>
           <th class="py-3 col-1 text-bg-secondary">Reserved</th>
@@ -63,7 +63,7 @@
         {#await getReport() then data}
           {#each Object.entries(data) as [i, report]}
             <tr>
-              <td class="d-none d-sm-table-cell">{report.isbn}</td>
+              <td class="d-none d-md-table-cell d-print-none">{report.isbn}</td>
               <td>{report.title}</td>
               <td>{report.available}</td>
               <td>{report.reserved}</td>

@@ -3,10 +3,22 @@
   import TitleLabel from "../components/TitleLabel.svelte";
 
   let totalAmount = 200;
-  let totalLate = 27;
+  let totalLate = 10;
   let avgLate = 10;
 
-  
+  const data = [
+    {ref:"09124812", name:"Kaysha Dela Pena", daysLate:3},
+    {ref:"235789321", name:"Rich James Lozano", daysLate:2},
+    {ref:"902345789", name:"Aaryanah Gayo", daysLate:1},
+    {ref:"237892431", name:"Knicole Bataclan", daysLate:2},
+    {ref:"2356789235", name:"Chloey Eusebio", daysLate:5},
+    {ref:"234578923", name:"Tristan Aquino", daysLate:7},
+    {ref:"291716781", name:"Kirsten Torrenueva", daysLate:2},
+    {ref:"192782712", name:"Mark Anthony Gipit", daysLate:1},
+    {ref:"214789234", name:"Raven Baldueza", daysLate:6},
+    {ref:"123478623", name:"Henreizh Nathan Aruta", daysLate:2}
+  ]
+  data.forEach(row=> totalAmount += row.daysLate * 50)
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -32,12 +44,14 @@
       </tr>
     </thead>
     <tbody>
+      {#each data as row}
       <tr>
-        <td>091238120</td>
-        <td>Francis James E. Salles</td>
-        <td>200</td>
-        <td>4</td>
+        <td>{row.ref}</td>
+        <td>{row.name}</td>
+        <td>₱{row.daysLate * 50}</td>
+        <td>{row.daysLate}</td>
       </tr>
+      {/each}
     </tbody>
   </table>
 </main>

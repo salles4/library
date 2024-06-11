@@ -5,17 +5,26 @@
   export let title;
   export let author;
 
-  let src = id > 4 ? "./book-cover.png" : `./${id}.jpg`;
+  let placeholder = false
 </script>
 
 <div class="card col-md-3 col-6">
-  <img {src} alt="book cover"/>
+  {#if placeholder}
+  <img
+    src="./book-cover.png"
+    alt="book cover"
+  />
+  {:else}
+  <img
+    src="https://oatzrwezibkcabfwxppo.supabase.co/storage/v1/object/public/books/{id}.jpg"
+    on:error={()=>placeholder=true}
+    alt="book cover"
+  />
+  {/if}
+  <!-- <img {src} alt="book cover"/> -->
   <div class="card-body">
     <h5 class="card-title"><a class="stretched-link" href="./#/book/{id}">{title}</a></h5>
     <small class="card-text"><i class="bi bi-person"></i> {author}</small>
-    <!-- <div>
-      <span class="badge rounded-pill text-bg-secondary">Unavailable</span>
-    </div> -->
   </div>
 </div>
 <style>
