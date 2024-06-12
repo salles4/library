@@ -19,7 +19,7 @@
   }
 
   let nameValue;
-  let bioValue;
+  let bioValue = "";
   let linkValue;
 
   let nameClass;
@@ -27,16 +27,28 @@
   let linkClass;
   async function addAuthor(){
     nameClass = !nameValue ? "is-invalid" : "";
-    bioClass = !bioValue ? "is-invalid" : "";
     linkClass = !linkValue ? "is-invalid" : "";
 
     console.log(nameClass, bioClass, linkClass);
     if(nameClass || bioClass || linkClass) return;
-    return;
+
     const {error} = await supabase
     .from("author")
     .insert({name:nameValue, bio:bioValue, link:linkValue})
+    if(error) {
+      console.error(error);
+      return
+    }
 
+    // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Add Author",
+      report_details:`Added ${nameValue}`,
+      staff_id: localStorage.getItem("user_id"),
+    })
+    if(reportError) console.error(reportError);
   }
 
 </script>
@@ -47,12 +59,14 @@
     <div class="col-sm-12 col-lg-6">
       <Row label="Author Name:" id="author-name">
         <input class="form-control {nameClass}" type="text" id="author-name" bind:value={nameValue} on:keyup={() => nameClass = ""}/>
+        <div class="invalid-feedback">Author Name is Required</div>
       </Row>
       <Row label="Author Bio:" id="author-bio">
         <textarea class="form-control {bioClass}" id="author-bio" rows="4" bind:value={bioValue} on:keyup={() => bioClass = ""}/>
       </Row>
       <Row label="Author Link:" id="author-link">
         <input type="text" id="author-link" class="form-control {linkClass}" bind:value={linkValue} on:keyup={() => linkClass = ""}/>
+        <div class="invalid-feedback">Author Link is Required</div>
       </Row>
       <Row label="Picture:" id="author-pic">
         <input

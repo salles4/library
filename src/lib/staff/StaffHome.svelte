@@ -28,7 +28,7 @@
       <FunctionItem name="Books Report" link="book-report" icon="journals" />
       <FunctionItem name="Students Report" link="student-report" icon="person-fill" />
       <FunctionItem name="Payments Report" link="payment-report" icon="cash" />
-      <FunctionItem name="Transactions Report" link="reports" icon="arrow-left-right" />
+      <FunctionItem name="System Log" link="reports" icon="arrow-left-right" />
     </div>
   </SectionLabel>
 </main>

@@ -20,6 +20,7 @@
   let publisherValue;
   let shelfValue;
   let isbnValue;
+  let categoriesIDs;
 
   let categoryClass;
   let authorClass;
@@ -55,7 +56,6 @@
 
     titleValue = data.title;
     descriptionValue = data.description;
-    // categoryValue = data.category;
     authorValue = data.author.name
     publisherValue = data.publisher.name
     shelfValue = data.shelf_number
@@ -68,13 +68,12 @@
       bookid: bookID,
       titlevalue: titleValue,
       descriptionvalue: descriptionValue,
-      // category_id: categoryID.category_id,
       author_name: authorValue,
       publisher_name: publisherValue,
       shelf_numbervalue: shelfValue,
       isbnvalue: isbnValue,
     })
-    if(files[0]){
+    if(files && files[0]){
       const {data:imageData, error:imageError} = await supabase.storage
       .from('books').upload(`${bookID}.jpg`, files[0], {upsert:true})
       if(imageError) console.error(imageError);
@@ -83,8 +82,37 @@
       .from('books').remove([`${bookID}.jpg`])
       if(imageError) console.error(imageError);
     }
+    
     if(error){console.error(error); alert(error.details); alert(error.hint); return}
     alert("Succesfully Updated")
+
+    const {error:deleteCategoriesError} = await supabase.from("books_category").delete().eq("book_id", bookID)
+    if(deleteCategoriesError) console.error(deleteCategoriesError);
+    let categoryPushed = true
+    for (const categoryID in categoriesIDs){
+      console.log(categoryID);
+      const {data:categoryData, error:categoryError} = await supabase
+      .from("books_category")
+      .insert({book_id:bookID, category_id:categoriesIDs[categoryID]})
+      if(categoryError) {
+        console.error(categoryError);
+        categoryPushed = false
+      }
+    }
+
+    if(!categoryPushed) alert("Had problem while pushing categories, Update book later")
+
+    // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Update Book",
+      report_details:`Changed Details of ${titleValue}`,
+      book_id: bookID,
+      staff_id: localStorage.getItem("user_id"),
+    })
+    if(reportError) console.error(reportError);
+
     pop()
   }
   async function checkNames(){
@@ -100,11 +128,6 @@
       .eq("name", publisherValue)
       .single();
 
-    // const { data: categoryID, error: categoryError } = await supabase
-    //   .from("category")
-    //   .select("category_id")
-    //   .eq("name", categoryValue)
-    //   .single();
     let complete = true;
     if (authorError || !authorID) {
       authorClass = "is-invalid";
@@ -114,11 +137,44 @@
       publisherClass = "is-invalid";
       complete = false
     }
-    // if (categoryError || !categoryID) {
-    //   categoryClass = "is-invalid";
-    //   complete = false
-    // }
+    if (!(await validateCategories())) {
+      if (categoriesIDs.length != 0) return;
+      categoryClass = "is-invalid";
+      complete = false;
+    }
+
     return complete
+  }
+  async function validateCategories() {
+    if (categoryValue == "") {
+      return false;
+    }
+
+    let valid = true;
+    let validCategoryID = [];
+
+    let categoriesArray = categoryValue.split(",").map((item) => item.trim());
+    console.log(categoriesArray);
+    for (const category of categoriesArray) {
+      console.log(category);
+      const { data: categoryID, error: categoryError } = await supabase
+        .from("category")
+        .select("category_id")
+        .eq("name", category)
+        .single();
+      if (categoryError) {
+        valid = false;
+        console.error(categoryError);
+      } else {
+        validCategoryID.push(categoryID.category_id);
+      }
+      console.log(valid);
+    }
+
+    console.log(categoriesArray, validCategoryID);
+    categoriesIDs = valid ? validCategoryID : [];
+    console.log(valid, categoriesIDs);
+    return valid;
   }
 </script>
 <section class="my-1 container" in:fade={{ duration: 500 }}>
@@ -190,15 +246,19 @@
           type="text"
           id="book-category"
           autocomplete="off"
-          
+          required
+            on:keyup={() => (categoryClass = "")}
         />
-        <div class="invalid-feedback">
-          Category Not Found. Check spelling or <a
-            target="_blank"
-            href="./#/add-category"
-            >add new category. <i class="bi bi-box-arrow-up-right" /></a
-          >
-        </div>
+        <div class="form-text">
+            Use comma to separate multiple categories. e.g(Science, Technology)
+          </div>
+          <div class="invalid-feedback">
+            Category Not Found. Check format and spelling or <a
+              target="_blank"
+              href="./#/add-category"
+              >add new category. <i class="bi bi-box-arrow-up-right" /></a
+            >
+          </div>
       </Row>
       <Row label="Author: " id="book-author">
         <input

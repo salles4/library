@@ -4,7 +4,7 @@
   import Row from "../forms/Row.svelte";
   import RowButton from "../forms/RowButton.svelte";
   import RowPreview from "../forms/RowPreview.svelte";
-  import { fade } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import { supabase } from "../../supabase";
   import { querystring } from "svelte-spa-router";
 
@@ -16,6 +16,7 @@
   $: daysGap = moment(returnDate).diff(moment(borrowDate).format("YYYY-MM-DD"), "days")
 
   const staffID = localStorage.getItem("user_id")
+  let staffName;
 
   let preview = false;
   let borrowID;
@@ -34,6 +35,8 @@
   let studClass;
   let barcodeClass;
   async function togglePreview() {
+    if(preview) preview = false
+    //get stud name
     const { data: stud, error: studError } = await supabase
       .from("account_details")
       .select("fname, lname")
@@ -45,7 +48,18 @@
     }else{
       studName = `${stud.fname} ${stud.lname}`;
     }
-
+    // get staff name
+    const { data: staff, error: staffError } = await supabase
+      .from("account_details")
+      .select("fname, lname")
+      .eq("user_id", staffID)
+      .single();
+    if (staffError) {
+      console.error(staffError);
+    }else{
+      staffName = `${staff.fname} ${staff.lname}`;
+    }
+    // get title
     const { data: book, error: bookError } = await supabase
       .from("library_holdings")
       .select("books(title)")
@@ -60,7 +74,7 @@
     }
     if(!bookError || !studError){
       borrowID = await generateID()
-      preview = !preview
+      preview = true
     }
   }
   async function fetchReserve(){
@@ -82,6 +96,7 @@
     }
   }
   async function addBorrow(){
+    // check barcode if exists
     const {data:holdingData, error:holdingError} = await supabase
     .from("library_holdings")
     .select("holding_id")
@@ -91,7 +106,7 @@
 
     const borrowTime = moment(borrowDate).format("YYYY-MM-DDTHH:MMZ")
     const dueTime = moment(returnDate).format("YYYY-MM-DDTHH:MMZ")
-    
+    //insert data to borrow
     const {error:insertingError} = await supabase
     .from("book_borrow")
     .insert({
@@ -106,7 +121,7 @@
       console.error(insertingError);
       return;
     }
-
+    //archive reserve data of borrowed book
     const {data:updatedRow,error:dropReserveError} = await supabase
     .from("book_reservation")
     .update({staff_id:staffID, release_date: borrowTime, active: false})
@@ -118,13 +133,33 @@
       console.error(dropReserveError);
       return;
     }
-
+    //change status of lib holding
     const {error:updatingError} = await supabase
     .from("library_holdings")
     .update({status:"Borrowed"})
     .eq("holding_id", holdingData.holding_id)
-    if(updatingError) console.error(updatingError);
+    if(updatingError){console.error(updatingError); return;}
+
+    // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Borrow Book",
+      report_details:`"${bookName}" borrowed`,
+      holding_id: holdingData.holding_id,
+      staff_id: staffID,
+      stud_id: studID
+    })
+    if(reportError) console.error(reportError);
+
+    alert(`${studName} successfully borrowed ${bookName}!`)
+    preview = false
+    reserveID = ""
+    studID = ""
+    bookBarcode = ""
   }
+
+
   function getRandomInt() {
     const min = 1000;
     const max = 9999;
@@ -145,7 +180,6 @@
     //to return
     console.log(randomID);
     return randomID;
-
   }
 </script>
 
@@ -157,13 +191,14 @@
         label="Reservation ID:"
         id="reserve"
         button="Fetch"
-        on:click={fetchReserve}
+        on:click={()=>{if(!preview){fetchReserve()}}}
       >
         <input
           class="form-control {reserveClass}"
           type="number"
           id="reserve"
           placeholder="e.g 300xxx"
+          disabled={preview}
           bind:value={reserveID}
           on:keyup={() => (reserveClass = "")}
         />
@@ -175,6 +210,8 @@
           class="form-control {studClass}"
           type="text"
           id="stud-id"
+          placeholder="e.g 2xxxxx"
+          disabled={preview}
           bind:value={studID}
           on:keyup={() => (studClass = "")}
         />
@@ -186,6 +223,7 @@
           type="text"
           id="book-barcode"
           placeholder="e.g 1000xxx"
+          disabled={preview}
           bind:value={bookBarcode}
           on:keyup={() => (barcodeClass = "")}
         />
@@ -238,7 +276,7 @@
       <!-- Row -->
       <div class="float-end">
         <button
-          class=" btn btn-success"
+          class="btn btn-{preview ? "secondary" : "success"}"
           on:click={() => {
             togglePreview();
           }}><i class="bi bi-receipt"></i> Borrow</button
@@ -249,12 +287,13 @@
       </div>
     </div>
     {#if preview}
-      <div class="col-sm-12 col-lg-5 border border-1 px-5">
+      <div class="col-sm-12 col-lg-5 border border-1 px-5"
+      transition:fly={{ duration: 400, y: -60 }}>
         <h3 class="py-4 text-center">Borrow Preview</h3>
         <RowPreview key="Borrow ID" value={borrowID} />
         <RowPreview key="Name" value={studName} />
         <RowPreview key="Book Title" value="{bookName} ({bookBarcode})" />
-        <RowPreview key="Staff Name" value="Francis James E. Salles ({staffID})" />
+        <RowPreview key="Staff Name" value="{staffName} ({staffID})" />
         <RowPreview
           key="Borrow Date"
           value={moment(borrowDate).format("MMMM DD, YYYY - hh:mm a")}
@@ -265,7 +304,7 @@
         />
 
         <div class="float-end my-2">
-          <button class=" btn btn-secondary" on:click={addBorrow}
+          <button class=" btn btn-success" on:click={addBorrow}
             ><i class="bi bi-arrow-up-circle"></i> Confirm</button
           >
         </div>

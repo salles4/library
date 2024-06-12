@@ -27,10 +27,14 @@
   let bookBarcode;
   let studID;
   let studName;
-  let noteValue;
+  let noteValue = "";
   let conditionValue;
 
   async function togglePreview() {
+    if(preview){
+      preview = false
+      return;
+    }
     const { data: borrowIDData, error: IDError } = await supabase
       .from("book_borrow")
       .select()
@@ -45,7 +49,7 @@
     const { data: borrowInfo, error } = await supabase.rpc("getborrowinfo", {
       borrowid: borrowID,
     });
-    console.error(error);
+    if(error) console.error(error);
     console.table(borrowInfo);
 
     let data = borrowInfo[0];
@@ -61,7 +65,7 @@
     const { data, error } = await supabase
       .from("book_return")
       .insert({
-        return_id: await generateID(),
+        return_id: returnID,
         borrow_id: borrowID,
         staff_id: staffID,
         note: noteValue,
@@ -71,7 +75,7 @@
       .select();
     if (error) {
       console.error(error);
-      return;
+      return false;
     }
     console.table(data);
     const { data: updateHoldings, error: errorHoldings } = await supabase
@@ -88,11 +92,55 @@
     if (errorHoldings || errorBorrow) {
       console.error(errorHoldings);
       console.error(errorBorrow);
+      return false;
+    }
+
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Book Return",
+      report_details:`"${bookName}" returned with ${daysGap > 0 ? `+${daysGap}` : daysGap} days on due`,
+      payment_id: paymentID,
+      return_id:returnID,
+      staff_id: staffID,
+      stud_id:studID
+    })
+    if(reportError) console.error(reportError);
+
+    alert(`Successfully Returned ${bookName}(${bookBarcode})`)
+    preview = false;
+    borrowID = ""
+    paymentID = null
+    return true;
+  }
+  $: paymentValue = daysGap * -50;
+  let refNumValue = "";
+  let payMethodValue;
+  let paymentID = null;
+  async function pay(){
+    if(refNumValue.trim() == ""){
+      alert("Please enter Reference Number")
       return;
     }
-    console.log(updateHoldings, borrowUpdate);
-  }
+    if(!(await returnBook())) return;
 
+    const {data, error} = await supabase
+    .from("payments")
+    .insert({
+      return_id:returnID,
+      ref_num:refNumValue,
+      amount: paymentValue,
+      method:payMethodValue
+    }).select("payment_id")
+    .single()
+
+    paymentID = data.payment_id
+
+    if(error){
+      console.error(error);
+      alert("Payment Failed")
+    }
+  }
   //Random id generator
   function getRandomInt() {
     const min = 1000;
@@ -115,8 +163,7 @@
     console.log(randomID);
     return randomID;
   }
-  $: paymentValue = daysGap * -50;
-  let refNum;
+
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -127,6 +174,7 @@
         <input
           class="form-control {borrowIDClass}"
           on:keyup={() => (borrowIDClass = "")}
+          disabled={preview}
           type="text"
           id="book-id"
           bind:value={borrowID}
@@ -222,15 +270,16 @@
         {/if}
 
         <div class="float-end my-2">
+          {#if daysGap >= 0}
           <button class=" btn btn-success" on:click={returnBook}
             ><i class="bi bi-arrow-up-circle"></i> Return</button
           >
-          {#if daysGap < 0}
+          {:else}
             <button
               class="btn btn-danger"
               data-bs-toggle="modal"
               data-bs-target="#payModal"
-              on:click={() => {}}><i class="bi bi-cash"></i> Pay</button
+              ><i class="bi bi-cash"></i> Pay and Return Book</button
             >
           {/if}
         </div>
@@ -240,9 +289,9 @@
   <Modal
     title="Process Payment"
     id="payModal"
-    pButton="Done"
+    pButton="Return and Pay"
     on:click={() => {
-      
+      pay()
     }}
   >
     <div class="container row">
@@ -250,10 +299,10 @@
       <h1 class="text-center">₱{paymentValue}</h1>
       <hr class="my-4" />
       <Row label="Ref No.:" id="ref">
-        <input class="form-control" type="text" id="ref" bind:value={refNum} />
+        <input class="form-control" type="text" id="ref" bind:value={refNumValue} />
       </Row>
       <Row label="Payment Method:" id="payment_method">
-        <select name="payment_method" class="form-select" id="payment_method">
+        <select name="payment_method" class="form-select" id="payment_method" bind:value={payMethodValue}>
           <option value="cash">Cash</option>
           <option value="GCash">GCash</option>
           <option value="bank">Bank Transfer</option>

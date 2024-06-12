@@ -4,10 +4,12 @@
   import { onMount } from "svelte";
   import { fade, fly, slide } from "svelte/transition";
   import { accType } from "../store";
+  import { replace } from 'svelte-spa-router'
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
   import Modal from "./components/Modal.svelte";
   import InvalidLink from "./InvalidLink.svelte";
+  import PasswordConfirm from "./components/PasswordConfirm.svelte";
 
   let logged;
   accType.subscribe((value) => (logged = value));
@@ -28,6 +30,10 @@
     book = data[0];
     if (data.length == 0) noData = true;
 
+    if(logged == "client" && book.storage_type == "private"){
+      replace("/invalid-link")
+    }
+
     const { data: categoriesData, error: categoriesError } = await supabase
       .from("books_category")
       .select("category(category_id, name)")
@@ -45,7 +51,7 @@
   }
   onMount(getData);
   // Staff
-  let barcodeValue;
+  let barcodeValue = "";
   async function getHoldingsData() {
     const { data, error } = await supabase.rpc("get_holdings", {
       bookid: bookID,
@@ -57,6 +63,10 @@
     holdings = data;
   }
   async function addCopy() {
+    if(!barcodeValue.startsWith("1000") || barcodeValue.length != 8 || isNaN(Number(barcodeValue))){
+      alert("Invalid format")
+      return;
+    }
     const { data } = await supabase
       .from("library_holdings")
       .select()
@@ -71,6 +81,8 @@
 
     if(error) {console.error(error); alert(error.message); return};
     barcodeValue = ""
+
+
   }
   let holdings;
   if (logged == "staff") {
@@ -219,6 +231,37 @@
     barcodeValue = randomID
   }
   let placeholder = false;
+
+  //delete
+  let deleteDialog = false
+  function toggleDialog(){
+    deleteDialog = !deleteDialog
+  }
+  //publicity
+  async function toPublic(){
+    const {data, error} = await supabase
+    .from("books")
+    .update({storage_type: "public"})
+    .eq("book_id", bookID)
+    if(error) {
+      alert(error)
+      return;
+    }
+    book.storage_type = "public"
+    book = book
+  }
+  async function toPrivate(){
+    const {data, error} = await supabase
+    .from("books")
+    .update({storage_type: "private"})
+    .eq("book_id", bookID)
+    if(error) {
+      alert(error)
+      return;
+    }
+    book.storage_type = "private"
+    book = book
+  }
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -308,15 +351,15 @@
                 >
                 <span class="mx-2">|</span>
                 {#if book.storage_type == "public"}
-                <button class="btn btn-outline-primary" title="Change to private"
+                <button class="btn btn-outline-primary" title="Change to private" on:click={toPrivate}
                   ><i class="bi bi-globe-americas"></i></button
                 >
                 {:else if book.storage_type == "private"}
-                <button class="btn btn-outline-primary" title="Change to public"
-                  ><i class="bi bi-file-earmark-lock"></i></button
+                <button class="btn btn-outline-primary" title="Change to public" on:click={toPublic}
+                  ><i class="bi bi-lock-fill"></i></button
                 >
                 {/if}
-                <button class="btn btn-outline-danger" title="Delete Permanently"
+                <button class="btn btn-outline-danger" title="Delete Permanently" on:click={toggleDialog}
                   ><i class="bi bi-trash3-fill"></i> <div class="d-none d-sm-inline">
                     </div></button
                 >
@@ -415,9 +458,9 @@
                         ? "text-bg-secondary"
                         : "text-bg-danger"}
                     >{data.status}
-                    {data.reservation_id
+                    {data.status == "Reserved"
                       ? `(${data.reservation_id})`
-                      : data.borrow_id
+                      : data.status == "Borrowed"
                         ? `(${data.borrow_id})`
                         : ""}</td
                   >
@@ -445,3 +488,6 @@
   {/if}
   <div class="my-5"></div>
 </main>
+{#if deleteDialog}
+  <PasswordConfirm bookID={bookID} bookTitle={book.title} on:cancel={toggleDialog} />
+{/if}

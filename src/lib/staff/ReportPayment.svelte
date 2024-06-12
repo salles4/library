@@ -1,37 +1,48 @@
 <script>
   import { fade } from "svelte/transition";
   import TitleLabel from "../components/TitleLabel.svelte";
+  import { supabase } from "../../supabase";
+  import { onMount } from "svelte";
 
   let totalAmount = 200;
   let totalLate = 10;
   let avgLate = 10;
 
-  const data = [
-    {ref:"09124812", name:"Kaysha Dela Pena", daysLate:3},
-    {ref:"235789321", name:"Rich James Lozano", daysLate:2},
-    {ref:"902345789", name:"Aaryanah Gayo", daysLate:1},
-    {ref:"237892431", name:"Knicole Bataclan", daysLate:2},
-    {ref:"2356789235", name:"Chloey Eusebio", daysLate:5},
-    {ref:"234578923", name:"Tristan Aquino", daysLate:7},
-    {ref:"291716781", name:"Kirsten Torrenueva", daysLate:2},
-    {ref:"192782712", name:"Mark Anthony Gipit", daysLate:1},
-    {ref:"214789234", name:"Raven Baldueza", daysLate:6},
-    {ref:"123478623", name:"Henreizh Nathan Aruta", daysLate:2}
-  ]
-  data.forEach(row=> totalAmount += row.daysLate * 50)
+  let paymentList;
+  let paymentReport
+  async function getPayments(){
+    const {data, error} = await supabase.rpc("getpayments")
+    if (error) console.error(error);
+    paymentList = data
+
+    const {data:pReport, error:pError} = await supabase.rpc("paymentreport").single()
+    if (pError) console.error(pError);
+    paymentReport = pReport
+  }
+  onMount(getPayments)
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
-  <TitleLabel text="Payments Report" />
+  <TitleLabel text="Payments Report" print={true}/>
   <div class="d-flex justify-content-center gap-5 my-3">
+    {#if paymentReport}
     <div>
       <div>Overall Total Payment</div>
-      <h1>₱{totalAmount}</h1>
+      <h1>₱{paymentReport.total}</h1>
     </div>
     <div>
       <div>Total Late Returns</div>
-      <h1>{totalLate}</h1>
+      <h1>{paymentReport.count}</h1>
     </div>
+    <div>
+      <div>Average Payment</div>
+      <h1>{paymentReport.average}</h1>
+    </div>
+    <div>
+      <div>Highest Payment</div>
+      <h1>{paymentReport.highest}</h1>
+    </div>
+    {/if}
   </div>
 
   <table class="table table-bordered table-striped text-center">
@@ -44,14 +55,16 @@
       </tr>
     </thead>
     <tbody>
-      {#each data as row}
+      {#if paymentList}
+      {#each paymentList as row}
       <tr>
-        <td>{row.ref}</td>
-        <td>{row.name}</td>
-        <td>₱{row.daysLate * 50}</td>
-        <td>{row.daysLate}</td>
+        <td>{row.ref_num}</td>
+        <td>{row.fname} {row.lname}</td>
+        <td>₱{row.amount}</td>
+        <td>{row.amount / 50}</td>
       </tr>
       {/each}
+      {/if}
     </tbody>
   </table>
 </main>

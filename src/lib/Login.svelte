@@ -8,7 +8,17 @@
   /**
    * @param {string} id
    */
-  function logClient(id) {
+  async function logClient(id) {
+  // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Log In",
+      report_details:`${usernameInput} logged in`,
+      staff_id:id
+    })
+    if(reportError) console.error(reportError);
+
     accType.set("client");
     localStorage.setItem("accType", "client");
     localStorage.setItem("user_id", id);
@@ -16,7 +26,17 @@
   /**
    * @param {string} id
    */
-  function logStaff(id) {
+  async function logStaff(id) {
+    // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Log In",
+      report_details:`${usernameInput} logged in`,
+      staff_id:id
+    })
+    if(reportError) console.error(reportError);
+
     accType.set("staff");
     localStorage.setItem("accType", "staff");
     localStorage.setItem("user_id", id);
@@ -57,6 +77,7 @@
       loginError = "User does not exist.";
       return;
     }
+    
     if (data.account_type == "student") {
       logClient(data.user_id);
     } else if (data.account_type == "staff") {
@@ -64,6 +85,7 @@
     } else {
       console.error(data);
     }
+    
   }
 
   let moreinfo = false;
@@ -93,7 +115,9 @@
     lnameValue,
     contactValue,
     addressValue,
-    emailValue;
+    emailValue,
+    yearValue,
+    courseValue;
 
   async function validateRegister() {
     disableNext = true;
@@ -112,19 +136,48 @@
     const { data, error } = await supabase
       .from("user_level")
       .select()
-      .eq("username", studIDValue);
+      .eq("user_id", studIDValue);
 
-    if (data.length == 0) {
+    if (data.length != 0) {
       moreInfoError = "Student ID already exists";
       return;
     }
+    const { error: registerError } = await supabase.rpc("register_student", {
+      userinput: regUserValue,
+      passinput: regPassValue,
+      idinput: studIDValue,
+      fnameinput: fnameValue,
+      lnameinput: lnameValue,
+      addressinput: addressValue,
+      contactinput: contactValue,
+      emailinput: emailValue,
+      yearinput: yearValue,
+      courseinput: courseValue,
+    });
+    if (registerError){
+      console.error(registerError);
+      return;
+    }
+
+    // record into report
+    const {error:reportError} = await supabase
+    .from("reports")
+    .insert({
+      report_type:"Register",
+      report_details:`${fnameValue} created new account with id #${studIDValue}`,
+      stud_id:studIDValue
+    })
+    if(reportError) console.error(reportError);
+
+    alert("Successfully created an account! Logging in...")
+    logClient(studIDValue)
   }
   let showLoginPass = false;
   let showRegPass = false;
   let showConfirmPass = false;
   function onInput(event) {
-	return event.target.value
-}
+    return event.target.value;
+  }
 </script>
 
 <main
@@ -152,8 +205,13 @@
           <label for="usernameLogin">Username</label>
         </div>
         <div class="input-box">
-          <a href="./#/" on:click|preventDefault={()=> showLoginPass = !showLoginPass}>
-            <span class="icon"><i class="bi bi-{showLoginPass ? 'eye-slash' : 'eye'}"></i></span>
+          <a
+            href="./#/"
+            on:click|preventDefault={() => (showLoginPass = !showLoginPass)}
+          >
+            <span class="icon"
+              ><i class="bi bi-{showLoginPass ? 'eye-slash' : 'eye'}"></i></span
+            >
           </a>
           <input
             minlength="6"
@@ -162,9 +220,10 @@
             id="passwordLogin"
             required
             autocomplete="off"
-            
-            on:input={(event) => {loginError = ""; passwordInput = onInput(event)}}
-            
+            on:input={(event) => {
+              loginError = "";
+              passwordInput = onInput(event);
+            }}
           />
           <label for="passwordLogin">Password</label>
         </div>
@@ -177,11 +236,12 @@
           disabled={disableLogIn}
           type="submit"
           class="bton"
-          id="loginBton">
+          id="loginBton"
+        >
           {#if disableLogIn}
-          <div class="spinner-border spinner-border-sm" role="status"></div>
+            <div class="spinner-border spinner-border-sm" role="status"></div>
           {:else}
-          Log In
+            Log In
           {/if}</button
         >
         <div class="login-register">
@@ -220,25 +280,34 @@
           </div>
           <div class="input-box">
             <span class="icon" id="showPass2"
-              ><a href="./#/" on:click|preventDefault={() => showRegPass = !showRegPass}
-                ><i class="bi bi-{showRegPass ? "eye-slash" : "eye"}"></i></a
+              ><a
+                href="./#/"
+                on:click|preventDefault={() => (showRegPass = !showRegPass)}
+                ><i class="bi bi-{showRegPass ? 'eye-slash' : 'eye'}"></i></a
               ></span
             >
             <input
               minlength="6"
               type={showRegPass ? "text" : "password"}
-              id="registerUsername"
+              id="registerPass"
               required
               autocomplete="off"
               maxlength="16"
-              on:keyup={(event) => {regError = ""; regPassValue = onInput(event)}}
+              on:keyup={(event) => {
+                regError = "";
+                regPassValue = onInput(event);
+              }}
             />
             <label for="registerPass">Password</label>
           </div>
           <div class="input-box">
             <span class="icon" id="showPass3"
-              ><a href="./#/" on:click|preventDefault={() => showConfirmPass = !showConfirmPass}
-                ><i class="bi bi-{showConfirmPass ? "eye-slash" : "eye"}"></i></a
+              ><a
+                href="./#/"
+                on:click|preventDefault={() =>
+                  (showConfirmPass = !showConfirmPass)}
+                ><i class="bi bi-{showConfirmPass ? 'eye-slash' : 'eye'}"
+                ></i></a
               ></span
             >
             <input
@@ -246,7 +315,10 @@
               id="registerConfirm"
               required
               autocomplete="off"
-              on:keyup={(event) => {regError = ""; confirmPassValue = onInput(event)}}
+              on:keyup={(event) => {
+                regError = "";
+                confirmPassValue = onInput(event);
+              }}
             />
             <label for="registerConfirm">Confirm Password</label>
           </div>
@@ -299,6 +371,7 @@
                 minlength="6"
                 maxlength="6"
                 autocomplete="off"
+                bind:value={studIDValue}
               />
               <label for="sID">Student ID</label>
             </div>
@@ -310,6 +383,7 @@
                 name="hidden"
                 required
                 autocomplete="off"
+                bind:value={fnameValue}
               />
               <label for="fname">First Name</label>
             </div>
@@ -321,6 +395,7 @@
                 name="hidden"
                 required
                 autocomplete="off"
+                bind:value={lnameValue}
               />
               <label for="lname">Last Name</label>
             </div>
@@ -332,6 +407,7 @@
                 name="hidden"
                 required
                 autocomplete="off"
+                bind:value={emailValue}
               />
               <label for="email">Email</label>
             </div>
@@ -347,6 +423,7 @@
                 maxlength="11"
                 required
                 autocomplete="off"
+                bind:value={contactValue}
               />
               <label for="contact">Contact</label>
             </div>
@@ -359,6 +436,7 @@
                 name="hidden"
                 required
                 autocomplete="off"
+                bind:value={addressValue}
               />
               <label for="address">Address</label>
             </div>
@@ -372,6 +450,7 @@
                 min="1"
                 required
                 autocomplete="off"
+                bind:value={yearValue}
               />
               <label for="yearLevel">Year Level</label>
             </div>
@@ -383,6 +462,7 @@
                 name="hidden"
                 required
                 autocomplete="off"
+                bind:value={courseValue}
               />
               <label for="course">Course</label>
             </div>
