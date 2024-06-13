@@ -20,7 +20,7 @@
         link="add-publisher"
         icon="building-add"
       />
-      <FunctionItem name="Manage Categories" link="" icon="collection" />
+      <!-- <FunctionItem name="Manage Categories" link="" icon="collection" /> -->
     </div>
   </SectionLabel>
   <SectionLabel title="Reports" icon="receipt">

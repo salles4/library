@@ -62,8 +62,16 @@
     loading = false;
     console.log(loading, searchResults);
   }
+  let categoriesList
+  let categorySelect;
+  async function getCategories() {
+    const { data, error } = await supabase.rpc("getcategories");
+    if (error) console.error(error);
+    categoriesList = data;
+  }
   onMount(checkParam);
   onMount(search);
+  onMount(getCategories)
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -107,26 +115,19 @@
       Category:
     </div>
     <div>
-      <select name="category" class="form-select">
-        <option value="all">All</option>
-        <option value="tech">Technology</option>
-        <option value="all">Educational</option>
-      </select>
-    </div>
-    <div>Sort by:</div>
-    <div>
-      <select name="filter" class="form-select">
-        <option value="">Total</option>
-        <option value="">Available</option>
-        <option value="">Reserved</option>
-        <option value="">Borrowed</option>
-      </select>
-    </div>
-    <div>
-      <select name="order" class="form-select">
-        <option value="">Ascending</option>
-        <option value="">Descending</option>
-      </select>
+      {#if categoriesList}
+      <select
+        name="filter"
+        class="form-select"
+        bind:this={categorySelect}
+        on:change={() => search()}
+      >
+          <option value="all">All</option>
+          {#each Object.entries(categoriesList) as [i, data]}
+            <option>{data.name}</option>
+          {/each}
+          </select>
+        {/if}
     </div>
   </div>
   {/if}

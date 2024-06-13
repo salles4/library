@@ -108,6 +108,21 @@
       isReserved();
       countHoldings();
     }
+    supabase
+      .channel("holdings")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "library_holdings" },
+        ()=>{
+          borrowID = "";
+          isBorrowed();
+          if (!borrowID) {
+            isReserved();
+            countHoldings();
+          
+        }}
+      )
+      .subscribe();
   }
   async function isReserved() {
     const { data, error } = await supabase.rpc("isreserved", {
@@ -132,6 +147,7 @@
     borrowID = data;
   }
   async function reserve() {
+    disableReserve = true
     const { data: holding, error: holdingError } = await supabase
       .from("library_holdings")
       .select("barcode, holding_id")
@@ -141,6 +157,7 @@
       .single();
     if (holdingError) {
       console.error(holdingError);
+      disableReserve = false
       return;
     }
 
@@ -153,6 +170,7 @@
       });
     if (insertError) {
       console.error(insertError);
+      disableReserve = false
       return;
     }
 
@@ -164,8 +182,10 @@
       .single();
     if (updateError) {
       console.error(updateError);
+      disableReserve = false
       return;
     }
+    disableReserve = false
     isReserved();
   }
   async function unreserve() {
@@ -182,8 +202,7 @@
       .eq("holding_id", data.holding_id);
 
     if (!error || !holdingError) {
-      isReserved();
-      countHoldings();
+      
     } else {
       console.error(error);
       console.error(holdingError);
@@ -262,6 +281,8 @@
     book.storage_type = "private"
     book = book
   }
+
+  let disableReserve = false;
 </script>
 
 <main class="container" in:fade={{ duration: 500 }}>
@@ -325,7 +346,7 @@
               >
             {:else}
               <button
-                disabled={false}
+                disabled={disableReserve}
                 class="btn btn-primary w-50"
                 on:click={reserve}>Reserve</button
               >

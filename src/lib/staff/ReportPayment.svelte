@@ -18,6 +18,7 @@
     const {data:pReport, error:pError} = await supabase.rpc("paymentreport").single()
     if (pError) console.error(pError);
     paymentReport = pReport
+
   }
   onMount(getPayments)
 </script>
@@ -36,11 +37,12 @@
     </div>
     <div>
       <div>Average Payment</div>
-      <h1>{paymentReport.average}</h1>
+      <h1>₱{paymentReport.average}</h1>
     </div>
     <div>
       <div>Highest Payment</div>
-      <h1>{paymentReport.highest}</h1>
+      <h1>₱{paymentReport.highest}</h1>
+      <small>some text</small>
     </div>
     {/if}
   </div>

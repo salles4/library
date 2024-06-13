@@ -77,6 +77,11 @@
       console.error(error);
       return false;
     }
+    const { data: borrowUpdate, error: errorBorrow } = await supabase
+      .from("book_borrow")
+      .update({ active: false })
+      .eq("borrow_id", borrowID)
+      .select();
     console.table(data);
     const { data: updateHoldings, error: errorHoldings } = await supabase
       .from("library_holdings")
@@ -84,11 +89,6 @@
       .eq("barcode", bookBarcode)
       .select();
 
-    const { data: borrowUpdate, error: errorBorrow } = await supabase
-      .from("book_borrow")
-      .update({ active: false })
-      .eq("borrow_id", borrowID)
-      .select();
     if (errorHoldings || errorBorrow) {
       console.error(errorHoldings);
       console.error(errorBorrow);

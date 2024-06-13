@@ -53,7 +53,17 @@
       replace("#/invalid-link")
       return
     }
-
+    const {data:categories, error:categoriesError} = await supabase
+    .from("books_category")
+    .select("category(name)")
+    .eq("book_id", bookID)
+    console.log(categories);
+    let categoryArray = []
+    for (const cat in categories){
+      // @ts-ignore
+      categoryArray.push(categories[cat].category.name)
+    }
+    categoryValue = categoryArray.join(", ")
     titleValue = data.title;
     descriptionValue = data.description;
     authorValue = data.author.name
@@ -78,9 +88,11 @@
       .from('books').upload(`${bookID}.jpg`, files[0], {upsert:true})
       if(imageError) console.error(imageError);
     }else{
-      const {data:imageData, error:imageError} = await supabase.storage
-      .from('books').remove([`${bookID}.jpg`])
-      if(imageError) console.error(imageError);
+      if(previewSrc != ""){
+        const {data:imageData, error:imageError} = await supabase.storage
+        .from('books').remove([`${bookID}.jpg`])
+        if(imageError) console.error(imageError);
+      }
     }
     
     if(error){console.error(error); alert(error.details); alert(error.hint); return}

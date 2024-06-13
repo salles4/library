@@ -6,6 +6,9 @@
   import Loading from "./components/Loading.svelte";
   import SectionLabel from "./components/SectionLabel.svelte";
   import BookItem from "./item/BookItem.svelte";
+
+  let logged = localStorage.getItem("accType")
+
   export let params;
   let publisherID = params.publisherID;
 
@@ -29,6 +32,7 @@
   onMount(getData);
 
   let img = "./default-profile.jpg";
+  let placeholder = false
 </script>
 
 <section class="container" in:fade={{ duration: 500 }}>
@@ -38,30 +42,58 @@
   <div class="d-md-flex d-block">
     <!--* Image -->
     <div id="publisher-cover" class="d-flex justify-content-center my-1">
-      <img
-        id="img-cover"
-        class="border p-3"
-        src={img}
-        alt="publisher"
-        height="300"
-        width="300"
-        style="object-fit: contain"
-      />
+      {#if placeholder}
+          <img
+            id="img-cover"
+            class="border p-3"
+            src="./book-cover.png"
+            alt="book cover"
+            height="300"
+            width="300"
+            style="object-fit: contain"
+          />
+          {:else}
+          <img
+            id="img-cover"
+            class="border p-3"
+            src="https://oatzrwezibkcabfwxppo.supabase.co/storage/v1/object/public/publisher/{publisherID}.jpg"
+            on:error={()=>placeholder=true}
+            alt="book cover"
+            height="300"
+            width="300"
+            style="object-fit: contain"
+          />
+          {/if}
     </div>
     <!--* Details -->
     {#if publisher}
       <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-column flex-sm-row">
         <h1 class="mb-2 pb-2">{publisher.name}</h1>
+        {#if logged == "staff"}
+              <div class="d-print-none">
+                <a href="./#/update-publisher?id={publisherID}"
+                  ><button class="btn btn-outline-primary"
+                    ><i class="bi bi-pencil-square"></i>
+                    <div class="d-inline">
+                      Edit Details
+                    </div>
+                     </button
+                  ></a
+                >
+              </div>
+            {/if}
+          </div>
         <p class="">
-          {#if publisher.description == null}
-            <span>{publisher.description}</span>
+          {#if !publisher.description}
+            <span class="text-secondary">No Description</span>
             {:else}
               {publisher.description}
             {/if}
         </p>
         <p>
           <b>Website:</b>
-          <a href="https://{publisher.link}" id="publisher-website"
+          <a href="{publisher.link}" id="publisher-website"
             >{publisher.link}</a
           >
         </p>

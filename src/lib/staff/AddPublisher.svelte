@@ -27,16 +27,23 @@
   let linkClass;
   async function addPublisher(){
     nameClass = !nameValue ? "is-invalid" : "";
-    descriptionClass = !descriptionValue ? "is-invalid" : "";
     linkClass = !linkValue ? "is-invalid" : "";
 
     console.log(nameClass, descriptionClass, linkClass);
     if(nameClass || descriptionClass || linkClass) return;
-    return;
-    const {error} = await supabase
+    
+    const {data, error} = await supabase
     .from("publisher")
     .insert({name:nameValue, description:descriptionValue, link:linkValue})
+    .select("publisher_id")
+    .single()
 
+     if (files && files[0]) {
+      const { data: imageData, error: imageError } = await supabase.storage
+        .from("puublisher")
+        .upload(`${data.publisher_id}.jpg`, files[0]);
+      if (imageError) console.error(imageError);
+    }
   }
 
 </script>

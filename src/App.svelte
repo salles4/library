@@ -21,6 +21,8 @@
   import ReportStudents from "./lib/staff/ReportStudents.svelte";
   import Reports from "./lib/staff/Reports.svelte";
   import UpdateBook from "./lib/staff/UpdateBook.svelte";
+  import UpdateAuthor from "./lib/staff/UpdateAuthor.svelte";
+  import UpdatePublisher from "./lib/staff/UpdatePublisher.svelte";
 
   let logged;
 
@@ -65,6 +67,8 @@
       "/student-report": ReportStudents,
       "/reports": Reports,
       "/update-book": UpdateBook,
+      "/update-author": UpdateAuthor,
+      "/update-publisher": UpdatePublisher,
       "*": InvalidLink,
     }}
   />
